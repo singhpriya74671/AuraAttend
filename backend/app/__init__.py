@@ -5,7 +5,13 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from flask_mail import Mail
-from celery import Celery
+try:
+    from celery import Celery
+    celery = Celery()
+    CELERY_AVAILABLE = True
+except ImportError:
+    celery = None
+    CELERY_AVAILABLE = False
 
 from config import config
 
@@ -13,7 +19,6 @@ db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
 mail = Mail()
-celery = Celery()
 
 # Initialized later in create_app
 limiter = None
@@ -54,10 +59,11 @@ def create_app(env=None):
     except ImportError:
         pass
 
-    celery.conf.update(
-        broker_url=app.config["CELERY_BROKER_URL"],
-        result_backend=app.config["CELERY_RESULT_BACKEND"],
-    )
+    if celery is not None and "CELERY_BROKER_URL" in app.config:
+        celery.conf.update(
+            broker_url=app.config["CELERY_BROKER_URL"],
+            result_backend=app.config["CELERY_RESULT_BACKEND"],
+        )
 
     from app.routes.auth import auth_bp
     from app.routes.attendance import attendance_bp
