@@ -79,6 +79,9 @@ def create_app(env=None):
     def health():
         return {"status": "ok", "service": "AuraAttend"}
 
+    with app.app_context():
+        db.create_all()
+
     return app
 
 
