@@ -292,6 +292,13 @@ def seed_subjects():
         {"code": "BEC-306", "name": "VLSI Design", "semester": 6},
         {"code": "BEC-308", "name": "Microprocessors and Microcontrollers", "semester": 6},
         {"code": "BEC-318", "name": "Digital Image Processing", "semester": 6},
+        {"code": "BEC-403", "name": "Wireless and Mobile Communication", "semester": 7},
+        {"code": "BAI-417", "name": "Multimodal Data Analysis", "semester": 7},
+        {"code": "BAI-413", "name": "Deep Learning", "semester": 7},
+        {"code": "BAI-451", "name": "Minor Project", "semester": 7},
+        {"code": "BAI-418", "name": "Recent Trends in AI", "semester": 8},
+        {"code": "BAI-452", "name": "Major Project/R&D Project/Start-up Project", "semester": 8},
+        {"code": "GEC-402", "name": "Generic Open Elective", "semester": 8},
     ]
     added = 0
     for s in subjects:
