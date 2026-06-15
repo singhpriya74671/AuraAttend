@@ -101,7 +101,15 @@ def my_subjects():
     if identity["role"] == "admin":
         subjects = Subject.query.filter_by(is_active=True).all()
     else:
-        subjects = Subject.query.filter_by(faculty_id=identity["id"], is_active=True).all()
+        faculty = Faculty.query.get(identity["id"])
+        from sqlalchemy import or_
+        subjects = Subject.query.filter(
+            Subject.is_active == True,
+            or_(
+                Subject.faculty_id == identity["id"],
+                Subject.department == faculty.department,
+            )
+        ).all()
     return jsonify([s.to_dict() for s in subjects])
 
 
