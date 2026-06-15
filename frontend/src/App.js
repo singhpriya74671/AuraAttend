@@ -1,5 +1,17 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import { useEffect } from "react";
+
+const API = process.env.REACT_APP_API_URL || "";
+// Ping backend every 8 minutes to prevent Render free tier sleep
+function useKeepAlive() {
+  useEffect(() => {
+    const ping = () => fetch(`${API}/api/health`).catch(() => {});
+    ping();
+    const id = setInterval(ping, 8 * 60 * 1000);
+    return () => clearInterval(id);
+  }, []);
+}
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -22,6 +34,7 @@ function RoleRoute() {
 }
 
 export default function App() {
+  useKeepAlive();
   return (
     <BrowserRouter>
       <Toaster position="top-right" />
