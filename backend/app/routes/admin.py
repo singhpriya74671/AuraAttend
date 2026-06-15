@@ -258,3 +258,45 @@ def stats():
         "total_subjects": Subject.query.filter_by(is_active=True).count(),
         "total_faculty": Faculty.query.filter_by(is_active=True).count(),
     })
+
+
+@admin_bp.post("/seed-subjects")
+def seed_subjects():
+    subjects = [
+        {"code": "BEC-101", "name": "Analog Electronics", "semester": 1},
+        {"code": "BEC-110", "name": "Basic Electrical Engineering", "semester": 1},
+        {"code": "BCS-110", "name": "Programming in C Language", "semester": 1},
+        {"code": "BAI-101", "name": "Intelligent Systems", "semester": 1},
+        {"code": "BAS-109", "name": "Applied Mathematics", "semester": 1},
+        {"code": "HMC-110", "name": "Communication Skills", "semester": 1},
+        {"code": "BEC-104", "name": "Digital Electronics", "semester": 2},
+        {"code": "BEC-106", "name": "Signals and Systems", "semester": 2},
+        {"code": "BAI-110", "name": "Programming with Python", "semester": 2},
+        {"code": "BAS-106", "name": "Environmental Sciences", "semester": 2},
+        {"code": "BAS-108", "name": "Probability and Statistics", "semester": 2},
+        {"code": "BAI-108", "name": "IT Workshop", "semester": 2},
+        {"code": "BEC-205", "name": "Network Analysis and Synthesis", "semester": 3},
+        {"code": "BEC-211", "name": "Communication Systems", "semester": 3},
+        {"code": "BAI-205", "name": "Neural Networks and Artificial Intelligence", "semester": 3},
+        {"code": "BCS-201", "name": "Data Structures", "semester": 3},
+        {"code": "BEC-202", "name": "Linear Integrated Circuits", "semester": 4},
+        {"code": "BEC-206", "name": "Electromagnetic Field Theory", "semester": 4},
+        {"code": "BEC-210", "name": "Digital Communication Systems", "semester": 4},
+        {"code": "BAI-204", "name": "Optimization Techniques and Decision Making", "semester": 4},
+        {"code": "HMC-202", "name": "Disaster Management", "semester": 4},
+        {"code": "BEC-303", "name": "Control Systems", "semester": 5},
+        {"code": "BEC-311", "name": "Digital Signal Processing", "semester": 5},
+        {"code": "BAI-301", "name": "Machine Learning", "semester": 5},
+        {"code": "BAI-307", "name": "Computer Networks", "semester": 5},
+        {"code": "HMC-301", "name": "Professional Ethics and Human Values", "semester": 5},
+        {"code": "BEC-306", "name": "VLSI Design", "semester": 6},
+        {"code": "BEC-308", "name": "Microprocessors and Microcontrollers", "semester": 6},
+        {"code": "BEC-318", "name": "Digital Image Processing", "semester": 6},
+    ]
+    added = 0
+    for s in subjects:
+        if not Subject.query.filter_by(code=s["code"]).first():
+            db.session.add(Subject(code=s["code"], name=s["name"], department="ECE-AI", semester=s["semester"]))
+            added += 1
+    db.session.commit()
+    return jsonify({"message": f"{added} subjects added successfully!"})
