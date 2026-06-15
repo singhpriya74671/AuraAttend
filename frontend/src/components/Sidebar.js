@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { LayoutDashboard, FileText, LogOut, ShieldCheck, Brain, BarChart2, GraduationCap, User, Settings, KeyRound, ChevronDown, X } from "lucide-react";
 
@@ -67,7 +67,7 @@ export default function Sidebar() {
               <GraduationCap size={18} className="text-white" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">AuraAttend</h2>
+              <h2 className="text-base font-bold text-white">AttendNow</h2>
               <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>IGDTUW</p>
             </div>
           </div>
@@ -178,7 +178,7 @@ export default function Sidebar() {
               </button>
             </div>
             <p className="text-sm mb-6" style={{ color: "rgba(255,255,255,0.5)" }}>
-              Are you sure you want to sign out? You will need to log in again to access AuraAttend.
+              Are you sure you want to sign out? You will need to log in again to access AttendNow.
             </p>
             <div className="flex gap-3">
               <button onClick={() => setShowLogoutConfirm(false)}
@@ -232,7 +232,7 @@ export default function Sidebar() {
               <button onClick={handleChangePassword} disabled={pwLoading}
                 className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
                 style={{ background: "linear-gradient(135deg, #3b82f6, #1d4ed8)" }}>
-                {pwLoading ? "Saving…" : "Update Password"}
+                {pwLoading ? "Savingâ€¦" : "Update Password"}
               </button>
             </div>
           </div>

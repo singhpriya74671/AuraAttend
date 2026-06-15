@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { User, Mail, Lock, Hash, BookOpen, Phone, ArrowRight, ArrowLeft, CheckCircle, Eye, EyeOff } from "lucide-react";
 import FaceCapture5 from "../components/FaceCapture5";
@@ -123,7 +123,7 @@ export default function Register() {
     boxShadow: "0 25px 60px rgba(0,0,0,0.4)",
   };
 
-  // ── Step 3: Success + auto-redirect ──────────────────────────────────────
+  // â”€â”€ Step 3: Success + auto-redirect â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (step === 3) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4" style={bg}>
@@ -140,13 +140,13 @@ export default function Register() {
           </p>
           {!faceRegistered && (
             <div className="px-4 py-3 rounded-xl text-xs" style={{ background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)", color: "rgba(253,230,138,0.8)" }}>
-              Face ID skipped — you can register it from the Student Dashboard under "Face ID" tab.
+              Face ID skipped â€” you can register it from the Student Dashboard under "Face ID" tab.
             </div>
           )}
           <button onClick={() => navigate("/student")}
             className="w-full py-3 rounded-xl text-sm font-semibold text-white transition"
             style={{ background: "linear-gradient(135deg, #3b82f6, #1d4ed8)", boxShadow: "0 8px 25px rgba(59,130,246,0.35)" }}>
-            Go to Dashboard →
+            Go to Dashboard â†’
           </button>
         </div>
       </div>
@@ -166,7 +166,7 @@ export default function Register() {
           background: "linear-gradient(135deg, rgba(59,130,246,0.2), rgba(29,78,216,0.1))",
           borderBottom: "1px solid rgba(255,255,255,0.08)"
         }}>
-          <h1 className="text-xl font-bold text-white">AuraAttend</h1>
+          <h1 className="text-xl font-bold text-white">AttendNow</h1>
           <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>Student Registration</p>
 
           {/* Step indicator */}
@@ -177,7 +177,7 @@ export default function Register() {
                   style={step > i + 1 ? { background: "#10b981", color: "#fff" }
                     : step === i + 1 ? { background: "#fff", color: "#1d4ed8" }
                     : { background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)" }}>
-                  {step > i + 1 ? "✓" : i + 1}
+                  {step > i + 1 ? "âœ“" : i + 1}
                 </div>
                 <span className="text-xs font-medium"
                   style={{ color: step === i + 1 ? "#fff" : "rgba(255,255,255,0.35)" }}>
@@ -190,7 +190,7 @@ export default function Register() {
         </div>
 
         <div className="p-8">
-          {/* ── Step 1: Personal Info ── */}
+          {/* â”€â”€ Step 1: Personal Info â”€â”€ */}
           {step === 1 && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -322,7 +322,7 @@ export default function Register() {
             </div>
           )}
 
-          {/* ── Step 2: Face ID ── */}
+          {/* â”€â”€ Step 2: Face ID â”€â”€ */}
           {step === 2 && (
             <div className="space-y-4">
               <div>
@@ -341,7 +341,7 @@ export default function Register() {
               {loading ? (
                 <div className="text-center py-12">
                   <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>Creating your account…</p>
+                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>Creating your accountâ€¦</p>
                 </div>
               ) : (
                 <>
@@ -354,7 +354,7 @@ export default function Register() {
                       style={{ color: "rgba(255,255,255,0.3)" }}
                       onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.6)"}
                       onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.3)"}>
-                      Skip Face ID for now — set it up later from dashboard
+                      Skip Face ID for now â€” set it up later from dashboard
                     </button>
                   </div>
                 </>

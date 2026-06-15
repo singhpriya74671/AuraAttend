@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+﻿import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   getActiveSessions, verifyOtp, getMyAttendanceSummary,
@@ -14,7 +14,7 @@ import {
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import toast from "react-hot-toast";
 
-// ── Shared style tokens ──────────────────────────────────────────────────────
+// â”€â”€ Shared style tokens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const glass = {
   background: "rgba(255,255,255,0.07)",
   backdropFilter: "blur(20px)",
@@ -34,7 +34,7 @@ function barColor(p)    { return p >= 75 ? "#22c55e" : p >= 60 ? "#f59e0b" : "#e
 function semToYear(sem) { return Math.ceil(sem / 2); }
 function actualSem(yr, ys) { return (yr - 1) * 2 + ys; }
 
-// ── Main Component ────────────────────────────────────────────────────────────
+// â”€â”€ Main Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function StudentDashboard() {
   const [tab, setTab] = useState("sessions");
   const [sessions, setSessions] = useState([]);
@@ -93,7 +93,7 @@ export default function StudentDashboard() {
     }
   }
 
-  // ── Data fetching ────────────────────────────────────────────────────────
+  // â”€â”€ Data fetching â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const fetchSessions = useCallback(async () => {
     try { const { data } = await getActiveSessions(); setSessions(data); } catch {}
   }, []);
@@ -138,7 +138,7 @@ export default function StudentDashboard() {
     }
   }, [summary]); // eslint-disable-line
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
+  // â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   async function handleOtpSubmit(session) {
     const otp = (otpInputs[session.subject_id] || "").trim();
     if (!otp) { toast.error("Please enter the OTP."); return; }
@@ -247,7 +247,7 @@ export default function StudentDashboard() {
     <div className="min-h-screen" style={{ background: "linear-gradient(135deg, #0f1f3d 0%, #1a3461 40%, #0d2137 100%)" }}>
       <div className="max-w-2xl mx-auto px-4 py-8">
 
-        {/* ── Header ─────────────────────────────────────────────────────── */}
+        {/* â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center"
@@ -255,7 +255,7 @@ export default function StudentDashboard() {
               <GraduationCap size={18} className="text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-white">AuraAttend</h1>
+              <h1 className="text-lg font-bold text-white">AttendNow</h1>
               <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>Welcome, {name}</p>
             </div>
           </div>
@@ -312,7 +312,7 @@ export default function StudentDashboard() {
           </div>
         </div>
 
-        {/* ── Tabs ───────────────────────────────────────────────────────── */}
+        {/* â”€â”€ Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <div className="flex gap-2 mb-6 p-1 rounded-xl" style={{ background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.08)" }}>
           {tabs.map(({ key, label, icon: Icon, badge }) => (
             <button key={key} onClick={() => { setTab(key); if (key === "history") setHistView("year"); }}
@@ -325,7 +325,7 @@ export default function StudentDashboard() {
           ))}
         </div>
 
-        {/* ── Camera / Presence Modals ──────────────────────────────────── */}
+        {/* â”€â”€ Camera / Presence Modals â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {showCamera && (
           <div className="fixed inset-0 flex items-center justify-center z-50 p-4"
             style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}>
@@ -363,9 +363,9 @@ export default function StudentDashboard() {
           </div>
         )}
 
-        {/* ════════════════════════════════════════════════════════════════
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
             LIVE SESSIONS TAB
-        ════════════════════════════════════════════════════════════════ */}
+        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {tab === "sessions" && (
           <>
             <h2 className="text-base font-semibold text-white mb-4">Active Attendance Sessions</h2>
@@ -426,7 +426,7 @@ export default function StudentDashboard() {
                             className="px-5 rounded-xl text-sm font-semibold text-white disabled:opacity-60 flex items-center gap-2"
                             style={{ background: "linear-gradient(135deg, #3b82f6, #1d4ed8)" }}>
                             {faceRegistered && <Camera size={14} />}
-                            {submitting[session.subject_id] ? "Verifying…" : "Mark"}
+                            {submitting[session.subject_id] ? "Verifyingâ€¦" : "Mark"}
                           </button>
                         </div>
                       </div>
@@ -438,12 +438,12 @@ export default function StudentDashboard() {
           </>
         )}
 
-        {/* ════════════════════════════════════════════════════════════════
-            MY ATTENDANCE TAB — hierarchical navigation
-        ════════════════════════════════════════════════════════════════ */}
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+            MY ATTENDANCE TAB â€” hierarchical navigation
+        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {tab === "history" && (
           <>
-            {/* ── View: Year selection ─────────────────────────────────── */}
+            {/* â”€â”€ View: Year selection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
             {histView === "year" && (
               <YearView
                 summary={summary}
@@ -452,7 +452,7 @@ export default function StudentDashboard() {
               />
             )}
 
-            {/* ── View: Semester selection ──────────────────────────────── */}
+            {/* â”€â”€ View: Semester selection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
             {histView === "semester" && (
               <SemesterView
                 year={selYear}
@@ -462,7 +462,7 @@ export default function StudentDashboard() {
               />
             )}
 
-            {/* ── View: Subjects list ───────────────────────────────────── */}
+            {/* â”€â”€ View: Subjects list â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
             {histView === "subjects" && (
               <SubjectsView
                 year={selYear}
@@ -474,7 +474,7 @@ export default function StudentDashboard() {
               />
             )}
 
-            {/* ── View: Subject detail ──────────────────────────────────── */}
+            {/* â”€â”€ View: Subject detail â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
             {histView === "detail" && (
               <DetailView
                 subject={selSubject}
@@ -488,9 +488,9 @@ export default function StudentDashboard() {
           </>
         )}
 
-        {/* ════════════════════════════════════════════════════════════════
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
             FACE ID TAB
-        ════════════════════════════════════════════════════════════════ */}
+        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {tab === "face" && (
           <>
             <h2 className="text-base font-semibold text-white mb-4">Face ID</h2>
@@ -538,9 +538,9 @@ export default function StudentDashboard() {
             </div>
           </>
         )}
-        {/* ════════════════════════════════════════════════════════════════
+        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
             NOTICES TAB
-        ════════════════════════════════════════════════════════════════ */}
+        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {tab === "notices" && (
           <>
             <div className="flex items-center justify-between mb-4">
@@ -555,7 +555,7 @@ export default function StudentDashboard() {
             {!noticesLoaded ? (
               <div className="text-center py-16">
                 <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Loading notices…</p>
+                <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Loading noticesâ€¦</p>
               </div>
             ) : notices.length === 0 ? (
               <div className="text-center py-16 rounded-2xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
@@ -645,7 +645,7 @@ export default function StudentDashboard() {
               <button onClick={() => setShowLogoutConfirm(false)} style={{ color: "rgba(255,255,255,0.4)" }}><X size={18} /></button>
             </div>
             <p className="text-sm mb-6" style={{ color: "rgba(255,255,255,0.5)" }}>
-              Are you sure you want to sign out? You will need to log in again to access AuraAttend.
+              Are you sure you want to sign out? You will need to log in again to access AttendNow.
             </p>
             <div className="flex gap-3">
               <button onClick={() => setShowLogoutConfirm(false)}
@@ -695,7 +695,7 @@ export default function StudentDashboard() {
               <button onClick={handleChangePassword} disabled={pwLoading}
                 className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
                 style={{ background: "linear-gradient(135deg, #3b82f6, #1d4ed8)" }}>
-                {pwLoading ? "Saving…" : "Update Password"}
+                {pwLoading ? "Savingâ€¦" : "Update Password"}
               </button>
             </div>
           </div>
@@ -706,9 +706,9 @@ export default function StudentDashboard() {
   );
 }
 
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // Sub-components
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 function BackBtn({ label, onClick }) {
   return (
@@ -735,7 +735,7 @@ function Breadcrumb({ parts }) {
   );
 }
 
-// ── Year Selection View ──────────────────────────────────────────────────────
+// â”€â”€ Year Selection View â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function YearView({ summary, selYear, onSelect }) {
   const yearData = [1, 2, 3, 4].map(y => {
     const subs = summary.filter(s => semToYear(s.semester) === y);
@@ -775,7 +775,7 @@ function YearView({ summary, selYear, onSelect }) {
               {withData > 0 ? (
                 <>
                   <div className="text-xl font-bold" style={{ color: pctColor(avg) }}>{avg}%</div>
-                  <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>avg · {total} subjects</div>
+                  <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>avg Â· {total} subjects</div>
                 </>
               ) : (
                 <div className="text-xs" style={{ color: "rgba(255,255,255,0.25)" }}>No data yet</div>
@@ -788,7 +788,7 @@ function YearView({ summary, selYear, onSelect }) {
   );
 }
 
-// ── Semester Selection View ───────────────────────────────────────────────────
+// â”€â”€ Semester Selection View â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function SemesterView({ year, summary, onBack, onSelect }) {
   const semData = [1, 2].map(ys => {
     const sem = actualSem(year, ys);
@@ -816,18 +816,18 @@ function SemesterView({ year, summary, onBack, onSelect }) {
             onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.07)"}>
             <div className="text-lg font-bold text-white mb-0.5">Semester {sem}</div>
             <div className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.35)" }}>
-              {ys === 1 ? "Jul – Dec" : "Jan – Jun"}
+              {ys === 1 ? "Jul â€“ Dec" : "Jan â€“ Jun"}
             </div>
             {total > 0 ? (
               <>
                 <div className="text-2xl font-bold mb-0.5" style={{ color: pctColor(avg) }}>{avg}%</div>
-                <div className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>avg · {total} subjects</div>
+                <div className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>avg Â· {total} subjects</div>
                 <div className="w-full rounded-full h-1.5" style={{ background: "rgba(255,255,255,0.08)" }}>
                   <div className="h-1.5 rounded-full" style={{ width: `${Math.min(avg, 100)}%`, background: barColor(avg) }} />
                 </div>
                 <div className="flex justify-between text-xs mt-2" style={{ color: "rgba(255,255,255,0.3)" }}>
-                  <span style={{ color: "#4ade80" }}>↑ {attended}</span>
-                  <span style={{ color: "#f87171" }}>↓ {missed}</span>
+                  <span style={{ color: "#4ade80" }}>â†‘ {attended}</span>
+                  <span style={{ color: "#f87171" }}>â†“ {missed}</span>
                 </div>
               </>
             ) : (
@@ -840,7 +840,7 @@ function SemesterView({ year, summary, onBack, onSelect }) {
   );
 }
 
-// ── Subjects List View ────────────────────────────────────────────────────────
+// â”€â”€ Subjects List View â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function SubjectsView({ year, yearSem, subjects, stats, onBack, onSubject }) {
   const sem = actualSem(year, yearSem);
 
@@ -890,7 +890,7 @@ function SubjectsView({ year, yearSem, subjects, stats, onBack, onSubject }) {
       )}
 
       <h3 className="text-sm font-semibold mb-3" style={{ color: "rgba(255,255,255,0.6)" }}>
-        {subjects.length} Subject{subjects.length !== 1 ? "s" : ""} · Semester {sem}
+        {subjects.length} Subject{subjects.length !== 1 ? "s" : ""} Â· Semester {sem}
       </h3>
 
       {subjects.length === 0 ? (
@@ -912,8 +912,8 @@ function SubjectsView({ year, yearSem, subjects, stats, onBack, onSubject }) {
                   <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{s.subject_code}</div>
                   <div className="flex gap-3 text-xs mt-2" style={{ color: "rgba(255,255,255,0.4)" }}>
                     <span>Total: <strong className="text-white">{s.total_classes}</strong></span>
-                    <span style={{ color: "#4ade80" }}>✓ {s.present}</span>
-                    <span style={{ color: "#f87171" }}>✗ {s.absent}</span>
+                    <span style={{ color: "#4ade80" }}>âœ“ {s.present}</span>
+                    <span style={{ color: "#f87171" }}>âœ— {s.absent}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -950,7 +950,7 @@ function SubjectsView({ year, yearSem, subjects, stats, onBack, onSubject }) {
   );
 }
 
-// ── Subject Detail View ───────────────────────────────────────────────────────
+// â”€â”€ Subject Detail View â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function DetailView({ subject, detail, loading, year, yearSem, onBack }) {
   const sem = actualSem(year, yearSem);
 
@@ -960,7 +960,7 @@ function DetailView({ subject, detail, loading, year, yearSem, onBack }) {
         <BackBtn label="Back to Subjects" onClick={onBack} />
         <div className="text-center py-16">
           <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Loading attendance data…</p>
+          <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Loading attendance dataâ€¦</p>
         </div>
       </>
     );
@@ -978,7 +978,7 @@ function DetailView({ subject, detail, loading, year, yearSem, onBack }) {
       <BackBtn label="Back to Subjects" onClick={onBack} />
       <Breadcrumb parts={["My Attendance", `Year ${year}`, `Semester ${sem}`, subject?.subject_name || ""]} />
 
-      {/* ── Hero card ─────────────────────────────── */}
+      {/* â”€â”€ Hero card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="rounded-2xl p-6 mb-4" style={{
         background: "linear-gradient(135deg, rgba(59,130,246,0.18), rgba(29,78,216,0.1))",
         border: "1px solid rgba(59,130,246,0.3)",
@@ -986,7 +986,7 @@ function DetailView({ subject, detail, loading, year, yearSem, onBack }) {
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-lg font-bold text-white leading-tight">{d.subject_name}</h2>
-            <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{d.subject_code} · Semester {d.semester}</p>
+            <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{d.subject_code} Â· Semester {d.semester}</p>
           </div>
           <div className="text-right">
             <div className="text-4xl font-bold" style={{ color: pctColor(d.percentage) }}>{d.percentage}%</div>
@@ -1025,7 +1025,7 @@ function DetailView({ subject, detail, loading, year, yearSem, onBack }) {
         </div>
       </div>
 
-      {/* ── Monthly Chart ──────────────────────────── */}
+      {/* â”€â”€ Monthly Chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {d.monthly.length > 0 && (
         <div className="rounded-2xl p-5 mb-4" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)" }}>
           <h3 className="text-sm font-semibold text-white mb-4">Monthly Attendance</h3>
@@ -1055,7 +1055,7 @@ function DetailView({ subject, detail, loading, year, yearSem, onBack }) {
         </div>
       )}
 
-      {/* ── Attendance History Timeline ────────────── */}
+      {/* â”€â”€ Attendance History Timeline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {d.records.length > 0 && (
         <div className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)" }}>
           <h3 className="text-sm font-semibold text-white mb-4">Attendance History</h3>
@@ -1078,10 +1078,10 @@ function DetailView({ subject, detail, loading, year, yearSem, onBack }) {
                       {r.status}
                     </span>
                     {r.geo_verified && (
-                      <span className="text-xs" style={{ color: "rgba(96,165,250,0.7)" }}>📍 geo</span>
+                      <span className="text-xs" style={{ color: "rgba(96,165,250,0.7)" }}>ðŸ“ geo</span>
                     )}
                     {r.face_confidence > 0 && (
-                      <span className="text-xs" style={{ color: "rgba(167,139,250,0.7)" }}>🔍 {r.face_confidence}%</span>
+                      <span className="text-xs" style={{ color: "rgba(167,139,250,0.7)" }}>ðŸ” {r.face_confidence}%</span>
                     )}
                   </div>
                 </div>

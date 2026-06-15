@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { User, Mail, Lock, BookOpen, CheckCircle } from "lucide-react";
 import toast from "react-hot-toast";
@@ -113,11 +113,11 @@ export default function FacultyRegister() {
           borderBottom: "1px solid rgba(255,255,255,0.08)",
           borderRadius: "20px 20px 0 0",
         }}>
-          <h1 className="text-xl font-bold text-white">AuraAttend</h1>
+          <h1 className="text-xl font-bold text-white">AttendNow</h1>
           <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>Faculty Registration</p>
           <p className="text-xs mt-2 px-2 py-1 rounded-lg inline-block"
             style={{ background: "rgba(59,130,246,0.15)", color: "rgba(147,197,253,0.9)", border: "1px solid rgba(59,130,246,0.25)" }}>
-            IGDTUW — Faculty / Lecturer Account
+            IGDTUW â€” Faculty / Lecturer Account
           </p>
         </div>
 
@@ -202,7 +202,7 @@ export default function FacultyRegister() {
             {loading ? (
               <span className="flex items-center justify-center gap-2">
                 <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Creating account…
+                Creating accountâ€¦
               </span>
             ) : "Create Faculty Account"}
           </button>

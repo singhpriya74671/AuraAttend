@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { login } from "../services/api";
 import toast from "react-hot-toast";
@@ -119,7 +119,7 @@ export default function Login() {
               <GraduationCap size={38} className="text-blue-300" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-wide">AuraAttend</h1>
+          <h1 className="text-2xl font-bold text-white tracking-wide">AttendNow</h1>
           <p className="text-blue-300 text-xs mt-1 tracking-widest uppercase">
             Indira Gandhi Delhi Technical University for Women
           </p>
@@ -215,7 +215,7 @@ export default function Login() {
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Signing in…
+                  Signing inâ€¦
                 </span>
               ) : `Sign In as ${role === "student" ? "Student" : "Faculty / Admin"}`}
             </button>
@@ -225,14 +225,14 @@ export default function Login() {
               <p className="text-center text-xs mt-3" style={{ color: "rgba(255,255,255,0.4)" }}>
                 New student?{" "}
                 <Link to="/register" className="text-blue-400 hover:text-blue-300 font-semibold transition">
-                  Create your account →
+                  Create your account â†’
                 </Link>
               </p>
             ) : (
               <p className="text-center text-xs mt-3" style={{ color: "rgba(255,255,255,0.4)" }}>
                 New faculty member?{" "}
                 <Link to="/register/faculty" className="text-blue-400 hover:text-blue-300 font-semibold transition">
-                  Create your account →
+                  Create your account â†’
                 </Link>
               </p>
             )}
@@ -242,7 +242,7 @@ export default function Login() {
         {/* Footer */}
         <div className="px-8 pb-6 text-center">
           <p className="text-xs" style={{ color: "rgba(255,255,255,0.2)" }}>
-            🔒 Secured with AES-256 encryption &nbsp;·&nbsp; IGDTUW © 2026
+            ðŸ”’ Secured with AES-256 encryption &nbsp;Â·&nbsp; IGDTUW Â© 2026
           </p>
         </div>
       </div>
@@ -275,7 +275,7 @@ export default function Login() {
                 <button onClick={sendOtp} disabled={forgotLoading}
                   className="w-full py-3 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
                   style={{ background: "linear-gradient(135deg, #3b82f6, #1d4ed8)" }}>
-                  {forgotLoading ? "Sending…" : "Send OTP"}
+                  {forgotLoading ? "Sendingâ€¦" : "Send OTP"}
                 </button>
               </>
             ) : (
@@ -292,11 +292,11 @@ export default function Login() {
                 <button onClick={resetPassword} disabled={forgotLoading}
                   className="w-full py-3 rounded-xl text-sm font-semibold text-white disabled:opacity-60 mb-2"
                   style={{ background: "linear-gradient(135deg, #10b981, #059669)" }}>
-                  {forgotLoading ? "Resetting…" : "Reset Password"}
+                  {forgotLoading ? "Resettingâ€¦" : "Reset Password"}
                 </button>
                 <button onClick={() => setForgotStep(1)}
                   className="w-full text-xs text-center py-2 transition" style={{ color: "rgba(255,255,255,0.35)" }}>
-                  ← Use a different email
+                  â† Use a different email
                 </button>
               </>
             )}
