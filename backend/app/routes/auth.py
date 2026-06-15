@@ -95,6 +95,7 @@ def register_student():
 
     # Register face embeddings from all provided angles
     face_images = data.get("face_images", [])
+    face_registered = False
     if face_images:
         from app.services.face_service import register_face
         success_count = 0
@@ -102,17 +103,21 @@ def register_student():
             result = register_face(student.id, img_b64, replace=False)
             if result.get("success"):
                 success_count += 1
-        if success_count == 0:
-            return jsonify({
-                "message": "Account created but face registration failed. Please register Face ID from your dashboard.",
-                "id": student.id,
-                "face_registered": False,
-            }), 201
+        face_registered = success_count > 0
 
+    # Auto-login: return a token so the frontend can log in immediately
+    token = create_access_token(
+        identity=str(student.id),
+        additional_claims={"role": "student"},
+    )
     return jsonify({
-        "message": "Registration successful! You can now log in.",
+        "message": "Registration successful!",
         "id": student.id,
-        "face_registered": len(face_images) > 0,
+        "face_registered": face_registered,
+        "access_token": token,
+        "role": "student",
+        "name": student.name,
+        "email": student.email,
     }), 201
 
 

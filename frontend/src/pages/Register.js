@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { User, Mail, Lock, Hash, BookOpen, Phone, ArrowRight, ArrowLeft, CheckCircle } from "lucide-react";
+import { User, Mail, Lock, Hash, BookOpen, Phone, ArrowRight, ArrowLeft, CheckCircle, Eye, EyeOff } from "lucide-react";
 import FaceCapture5 from "../components/FaceCapture5";
 import toast from "react-hot-toast";
 import api from "../services/api";
@@ -28,9 +28,15 @@ const labelStyle = {
   letterSpacing: "0.03em",
 };
 
+function isValidEmail(e) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+}
+
 export default function Register() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [showPw, setShowPw] = useState(false);
+  const [faceRegistered, setFaceRegistered] = useState(false);
   const [form, setForm] = useState({
     name: "", email: "", password: "", confirmPassword: "",
     roll_number: "", department: "ECE-AI", semester: "7",
@@ -39,40 +45,73 @@ export default function Register() {
   const navigate = useNavigate();
 
   function update(field, value) {
-    setForm((f) => ({ ...f, [field]: value }));
+    setForm(f => ({ ...f, [field]: value }));
   }
 
   function validateStep1() {
-    if (!form.name.trim())        { toast.error("Name is required."); return false; }
-    if (!form.email.trim())       { toast.error("Email is required."); return false; }
-    if (!form.roll_number.trim()) { toast.error("Roll number is required."); return false; }
-    if (form.password.length < 6) { toast.error("Password must be at least 6 characters."); return false; }
-    if (form.password !== form.confirmPassword) { toast.error("Passwords do not match."); return false; }
+    if (!form.name.trim()) {
+      toast.error("Full name is required."); return false;
+    }
+    if (!form.email.trim()) {
+      toast.error("Email is required."); return false;
+    }
+    if (!isValidEmail(form.email.trim())) {
+      toast.error("Enter a valid email address."); return false;
+    }
+    if (!form.roll_number.trim()) {
+      toast.error("Roll number is required."); return false;
+    }
+    if (form.password.length < 6) {
+      toast.error("Password must be at least 6 characters."); return false;
+    }
+    if (form.password !== form.confirmPassword) {
+      toast.error("Passwords do not match."); return false;
+    }
     return true;
   }
 
-  async function handleFaceComplete(images) {
+  async function submitRegistration(images) {
     setLoading(true);
     try {
-      await api.post("/api/auth/register/student", {
-        name: form.name,
-        email: form.email.toLowerCase(),
+      const { data } = await api.post("/api/auth/register/student", {
+        name: form.name.trim(),
+        email: form.email.trim().toLowerCase(),
         password: form.password,
-        roll_number: form.roll_number,
+        roll_number: form.roll_number.trim(),
         department: form.department,
         semester: parseInt(form.semester),
-        phone: form.phone,
-        parent_email: form.parent_email,
+        phone: form.phone.trim(),
+        parent_email: form.parent_email.trim(),
         face_images: images,
       });
+
+      // Auto-login: store token and redirect immediately
+      localStorage.setItem("token", data.access_token);
+      localStorage.setItem("role", data.role);
+      localStorage.setItem("name", data.name);
+      localStorage.setItem("email", data.email);
+
+      setFaceRegistered(data.face_registered);
       setStep(3);
     } catch (err) {
-      toast.error(err.response?.data?.error || "Registration failed. Please try again.");
-      setStep(2);
+      const msg = err.response?.data?.error;
+      const status = err.response?.status;
+      if (status === 409) {
+        toast.error(msg || "This email or roll number is already registered.");
+        setStep(1);
+      } else if (status === 400) {
+        toast.error(msg || "Please fill in all required fields.");
+        setStep(1);
+      } else {
+        toast.error(msg || "Registration failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
   }
+
+  function handleFaceComplete(images) { submitRegistration(images); }
+  function handleSkipFace()           { submitRegistration([]); }
 
   const bg = { background: "linear-gradient(135deg, #0f1f3d 0%, #1a3461 40%, #0d2137 100%)" };
   const card = {
@@ -84,6 +123,7 @@ export default function Register() {
     boxShadow: "0 25px 60px rgba(0,0,0,0.4)",
   };
 
+  // ── Step 3: Success + auto-redirect ──────────────────────────────────────
   if (step === 3) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4" style={bg}>
@@ -94,12 +134,19 @@ export default function Register() {
           </div>
           <h2 className="text-2xl font-bold text-white">Registration Complete!</h2>
           <p className="text-sm" style={{ color: "rgba(255,255,255,0.55)" }}>
-            Your account and Face ID have been registered successfully. You can now sign in.
+            {faceRegistered
+              ? "Your account and Face ID have been registered. You are now signed in!"
+              : "Your account has been created. You can set up Face ID later from your dashboard."}
           </p>
-          <button onClick={() => navigate("/login")}
+          {!faceRegistered && (
+            <div className="px-4 py-3 rounded-xl text-xs" style={{ background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)", color: "rgba(253,230,138,0.8)" }}>
+              Face ID skipped — you can register it from the Student Dashboard under "Face ID" tab.
+            </div>
+          )}
+          <button onClick={() => navigate("/student")}
             className="w-full py-3 rounded-xl text-sm font-semibold text-white transition"
             style={{ background: "linear-gradient(135deg, #3b82f6, #1d4ed8)", boxShadow: "0 8px 25px rgba(59,130,246,0.35)" }}>
-            Go to Login
+            Go to Dashboard →
           </button>
         </div>
       </div>
@@ -108,7 +155,6 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={bg}>
-      {/* Decorative blobs */}
       <div className="absolute top-[-80px] right-[-80px] w-96 h-96 rounded-full opacity-10 pointer-events-none"
         style={{ background: "radial-gradient(circle, #4f8ef7, transparent)" }} />
       <div className="absolute bottom-[-100px] left-[-60px] w-80 h-80 rounded-full opacity-10 pointer-events-none"
@@ -123,7 +169,7 @@ export default function Register() {
           <h1 className="text-xl font-bold text-white">AuraAttend</h1>
           <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>Student Registration</p>
 
-          {/* Step Indicator */}
+          {/* Step indicator */}
           <div className="flex items-center gap-2 mt-4">
             {["Personal Info", "Face ID Setup"].map((label, i) => (
               <div key={i} className="flex items-center gap-2">
@@ -144,7 +190,7 @@ export default function Register() {
         </div>
 
         <div className="p-8">
-          {/* Step 1 — Personal Info */}
+          {/* ── Step 1: Personal Info ── */}
           {step === 1 && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -153,8 +199,10 @@ export default function Register() {
                   <label style={labelStyle}>Full Name *</label>
                   <div className="relative">
                     <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "rgba(255,255,255,0.3)" }} />
-                    <input type="text" value={form.name} onChange={(e) => update("name", e.target.value)}
-                      placeholder="Priya Sharma" style={inputStyle} />
+                    <input type="text" value={form.name} onChange={e => update("name", e.target.value)}
+                      placeholder="Priya Sharma" style={inputStyle}
+                      onFocus={e => e.target.style.borderColor = "rgba(99,130,246,0.6)"}
+                      onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.12)"} />
                   </div>
                 </div>
 
@@ -163,8 +211,10 @@ export default function Register() {
                   <label style={labelStyle}>Email Address *</label>
                   <div className="relative">
                     <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "rgba(255,255,255,0.3)" }} />
-                    <input type="email" value={form.email} onChange={(e) => update("email", e.target.value)}
-                      placeholder="priya@igdtuw.ac.in" style={inputStyle} />
+                    <input type="email" value={form.email} onChange={e => update("email", e.target.value)}
+                      placeholder="priya@igdtuw.ac.in" style={inputStyle}
+                      onFocus={e => e.target.style.borderColor = "rgba(99,130,246,0.6)"}
+                      onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.12)"} />
                   </div>
                 </div>
 
@@ -173,8 +223,10 @@ export default function Register() {
                   <label style={labelStyle}>Password *</label>
                   <div className="relative">
                     <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "rgba(255,255,255,0.3)" }} />
-                    <input type="password" value={form.password} onChange={(e) => update("password", e.target.value)}
-                      placeholder="Min 6 characters" style={inputStyle} />
+                    <input type={showPw ? "text" : "password"} value={form.password} onChange={e => update("password", e.target.value)}
+                      placeholder="Min 6 characters" style={inputStyle}
+                      onFocus={e => e.target.style.borderColor = "rgba(99,130,246,0.6)"}
+                      onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.12)"} />
                   </div>
                 </div>
 
@@ -183,9 +235,20 @@ export default function Register() {
                   <label style={labelStyle}>Confirm Password *</label>
                   <div className="relative">
                     <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "rgba(255,255,255,0.3)" }} />
-                    <input type="password" value={form.confirmPassword} onChange={(e) => update("confirmPassword", e.target.value)}
-                      placeholder="Repeat password" style={inputStyle} />
+                    <input type={showPw ? "text" : "password"} value={form.confirmPassword} onChange={e => update("confirmPassword", e.target.value)}
+                      placeholder="Repeat password" style={inputStyle}
+                      onFocus={e => e.target.style.borderColor = "rgba(99,130,246,0.6)"}
+                      onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.12)"} />
                   </div>
+                </div>
+
+                {/* Show password toggle */}
+                <div className="col-span-2">
+                  <label className="flex items-center gap-2 cursor-pointer w-fit">
+                    <input type="checkbox" checked={showPw} onChange={e => setShowPw(e.target.checked)}
+                      className="w-3.5 h-3.5 rounded accent-blue-500" />
+                    <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Show passwords</span>
+                  </label>
                 </div>
 
                 {/* Roll Number */}
@@ -193,8 +256,10 @@ export default function Register() {
                   <label style={labelStyle}>Roll Number *</label>
                   <div className="relative">
                     <Hash size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "rgba(255,255,255,0.3)" }} />
-                    <input type="text" value={form.roll_number} onChange={(e) => update("roll_number", e.target.value)}
-                      placeholder="00714803122" style={inputStyle} />
+                    <input type="text" value={form.roll_number} onChange={e => update("roll_number", e.target.value)}
+                      placeholder="00714803122" style={inputStyle}
+                      onFocus={e => e.target.style.borderColor = "rgba(99,130,246,0.6)"}
+                      onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.12)"} />
                   </div>
                 </div>
 
@@ -203,9 +268,9 @@ export default function Register() {
                   <label style={labelStyle}>Semester *</label>
                   <div className="relative">
                     <BookOpen size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "rgba(255,255,255,0.3)" }} />
-                    <select value={form.semester} onChange={(e) => update("semester", e.target.value)}
+                    <select value={form.semester} onChange={e => update("semester", e.target.value)}
                       style={{ ...inputStyle, paddingLeft: "36px" }}>
-                      {SEMESTERS.map((s) => <option key={s} value={s} style={{ background: "#1a3461" }}>Semester {s}</option>)}
+                      {SEMESTERS.map(s => <option key={s} value={s} style={{ background: "#1a3461" }}>Semester {s}</option>)}
                     </select>
                   </div>
                 </div>
@@ -213,9 +278,9 @@ export default function Register() {
                 {/* Department */}
                 <div className="col-span-2">
                   <label style={labelStyle}>Department *</label>
-                  <select value={form.department} onChange={(e) => update("department", e.target.value)}
+                  <select value={form.department} onChange={e => update("department", e.target.value)}
                     style={{ ...inputStyle, paddingLeft: "12px" }}>
-                    {DEPARTMENTS.map((d) => <option key={d} value={d} style={{ background: "#1a3461" }}>{d}</option>)}
+                    {DEPARTMENTS.map(d => <option key={d} value={d} style={{ background: "#1a3461" }}>{d}</option>)}
                   </select>
                 </div>
 
@@ -224,8 +289,10 @@ export default function Register() {
                   <label style={labelStyle}>Phone (optional)</label>
                   <div className="relative">
                     <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "rgba(255,255,255,0.3)" }} />
-                    <input type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)}
-                      placeholder="+91 9999999999" style={inputStyle} />
+                    <input type="tel" value={form.phone} onChange={e => update("phone", e.target.value)}
+                      placeholder="+91 9999999999" style={inputStyle}
+                      onFocus={e => e.target.style.borderColor = "rgba(99,130,246,0.6)"}
+                      onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.12)"} />
                   </div>
                 </div>
 
@@ -234,8 +301,10 @@ export default function Register() {
                   <label style={labelStyle}>Parent Email (optional)</label>
                   <div className="relative">
                     <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "rgba(255,255,255,0.3)" }} />
-                    <input type="email" value={form.parent_email} onChange={(e) => update("parent_email", e.target.value)}
-                      placeholder="parent@gmail.com" style={inputStyle} />
+                    <input type="email" value={form.parent_email} onChange={e => update("parent_email", e.target.value)}
+                      placeholder="parent@gmail.com" style={inputStyle}
+                      onFocus={e => e.target.style.borderColor = "rgba(99,130,246,0.6)"}
+                      onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.12)"} />
                   </div>
                 </div>
               </div>
@@ -253,7 +322,7 @@ export default function Register() {
             </div>
           )}
 
-          {/* Step 2 — Face ID */}
+          {/* ── Step 2: Face ID ── */}
           {step === 2 && (
             <div className="space-y-4">
               <div>
@@ -272,10 +341,23 @@ export default function Register() {
               {loading ? (
                 <div className="text-center py-12">
                   <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>Creating your account and registering Face ID…</p>
+                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>Creating your account…</p>
                 </div>
               ) : (
-                <FaceCapture5 onComplete={handleFaceComplete} onCancel={() => setStep(1)} />
+                <>
+                  <FaceCapture5 onComplete={handleFaceComplete} onCancel={() => setStep(1)} />
+
+                  {/* Skip option */}
+                  <div className="text-center pt-1">
+                    <button onClick={handleSkipFace}
+                      className="text-xs transition"
+                      style={{ color: "rgba(255,255,255,0.3)" }}
+                      onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.6)"}
+                      onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.3)"}>
+                      Skip Face ID for now — set it up later from dashboard
+                    </button>
+                  </div>
+                </>
               )}
             </div>
           )}
