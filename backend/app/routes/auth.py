@@ -136,16 +136,23 @@ def register_faculty():
     if Faculty.query.filter_by(email=email).first():
         return jsonify({"error": "This email is already registered. Please sign in."}), 409
 
+    # First registered faculty automatically becomes admin
+    no_admin_exists = Faculty.query.filter_by(role="admin").count() == 0
     faculty = Faculty(
         name=name,
         email=email,
         department=department or "General",
-        role="faculty",
+        role="admin" if no_admin_exists else "faculty",
         password_hash=generate_password_hash(password),
     )
     db.session.add(faculty)
     db.session.commit()
-    return jsonify({"message": "Faculty registered successfully! You can now sign in.", "id": faculty.id}), 201
+    assigned_role = faculty.role
+    return jsonify({
+        "message": f"Registered successfully as {'Admin' if assigned_role == 'admin' else 'Faculty'}! You can now sign in.",
+        "id": faculty.id,
+        "role": assigned_role,
+    }), 201
 
 
 @auth_bp.post("/change-password")
