@@ -103,13 +103,18 @@ def my_subjects():
     else:
         faculty = Faculty.query.get(identity["id"])
         from sqlalchemy import or_
-        subjects = Subject.query.filter(
-            Subject.is_active == True,
-            or_(
-                Subject.faculty_id == identity["id"],
-                Subject.department == faculty.department,
-            )
-        ).all()
+        if faculty and faculty.department:
+            subjects = Subject.query.filter(
+                Subject.is_active == True,
+                or_(
+                    Subject.faculty_id == identity["id"],
+                    Subject.department == faculty.department,
+                )
+            ).all()
+        else:
+            subjects = Subject.query.filter_by(
+                faculty_id=identity["id"], is_active=True
+            ).all()
     return jsonify([s.to_dict() for s in subjects])
 
 
