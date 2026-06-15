@@ -15,67 +15,80 @@ auth_bp = Blueprint("auth", __name__)
 @auth_bp.post("/login")
 def login():
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid request."}), 400
+
     email = data.get("email", "").strip().lower()
-    role_hint = data.get("role", "admin")  # "student" or "admin"/"faculty"
-    name = email.split("@")[0].replace(".", " ").replace("_", " ").title()
+    password = data.get("password", "")
+    role_hint = data.get("role", "admin")
+
+    if not email:
+        return jsonify({"error": "Email is required."}), 400
+    if not password:
+        return jsonify({"error": "Password is required."}), 400
 
     if role_hint == "student":
         user = Student.query.filter_by(email=email).first()
-        role = "student"
         if user is None:
-            username_part = email.split("@")[0][:10].upper().replace(".", "").replace("_", "")
-            roll_number = f"ST{username_part}"
-            user = Student(
-                roll_number=roll_number,
-                name=name,
-                email=email,
-                department="General",
-                semester=1,
-                password_hash="",
-            )
-            db.session.add(user)
-            db.session.commit()
+            return jsonify({"error": "No account found with this email. Please register first."}), 404
+
+        # If account was auto-created without a password, let them set one
+        if user.password_hash:
+            if not check_password_hash(user.password_hash, password):
+                return jsonify({"error": "Incorrect password. Please try again."}), 401
+
+        role = "student"
     else:
         user = Faculty.query.filter_by(email=email).first()
-        role = getattr(user, "role", "admin") if user else None
         if user is None:
-            # Also check if it's a student trying to log in as faculty
-            user = Student.query.filter_by(email=email).first()
-            if user:
-                role = "student"
-            else:
-                user = Faculty(
-                    name=name,
-                    email=email,
-                    role="admin",
-                    department="General",
-                    password_hash="",
-                )
-                db.session.add(user)
-                db.session.commit()
-                role = "admin"
+            return jsonify({"error": "No account found with this email. Please register or contact your admin."}), 404
 
-    token = create_access_token(identity=str(user.id), additional_claims={"role": role})
-    return jsonify({"access_token": token, "role": role, "name": user.name})
+        if user.password_hash:
+            if not check_password_hash(user.password_hash, password):
+                return jsonify({"error": "Incorrect password. Please try again."}), 401
+
+        role = getattr(user, "role", "faculty")
+
+    token = create_access_token(
+        identity=str(user.id),
+        additional_claims={"role": role},
+    )
+    return jsonify({
+        "access_token": token,
+        "role": role,
+        "name": user.name,
+        "email": user.email,
+    })
 
 
 @auth_bp.post("/register/student")
 def register_student():
     data = request.get_json()
-    if Student.query.filter_by(email=data["email"]).first():
+
+    email = data.get("email", "").strip().lower()
+    password = data.get("password", "")
+    name = data.get("name", "").strip()
+    roll_number = data.get("roll_number", "").strip()
+
+    if not name or not email or not roll_number or not password:
+        return jsonify({"error": "All fields are required."}), 400
+    if len(password) < 6:
+        return jsonify({"error": "Password must be at least 6 characters."}), 400
+
+    if Student.query.filter_by(email=email).first():
         return jsonify({"error": "This email is already registered. Please sign in."}), 409
-    if Student.query.filter_by(roll_number=data["roll_number"]).first():
+    if Student.query.filter_by(roll_number=roll_number).first():
         return jsonify({"error": "This roll number is already registered."}), 409
 
     student = Student(
-        roll_number=data["roll_number"],
-        name=data["name"],
-        email=data["email"].lower(),
+        roll_number=roll_number,
+        name=name,
+        email=email,
         parent_email=data.get("parent_email"),
         phone=data.get("phone"),
         department=data.get("department", "ECE-AI"),
         semester=data.get("semester", 1),
-        password_hash=generate_password_hash(data["password"]),
+        password_hash=generate_password_hash(password),
     )
     db.session.add(student)
     db.session.commit()
@@ -97,7 +110,7 @@ def register_student():
             }), 201
 
     return jsonify({
-        "message": "Registration successful!",
+        "message": "Registration successful! You can now log in.",
         "id": student.id,
         "face_registered": len(face_images) > 0,
     }), 201
@@ -127,7 +140,38 @@ def register_faculty():
     )
     db.session.add(faculty)
     db.session.commit()
-    return jsonify({"message": "Faculty registered successfully!", "id": faculty.id}), 201
+    return jsonify({"message": "Faculty registered successfully! You can now sign in.", "id": faculty.id}), 201
+
+
+@auth_bp.post("/change-password")
+@jwt_required()
+def change_password():
+    data = request.get_json()
+    current_password = data.get("current_password", "")
+    new_password = data.get("new_password", "")
+
+    if not current_password:
+        return jsonify({"error": "Current password is required."}), 400
+    if len(new_password) < 6:
+        return jsonify({"error": "New password must be at least 6 characters."}), 400
+
+    user_id = int(get_jwt_identity())
+    role = get_jwt().get("role")
+
+    if role == "student":
+        user = Student.query.get(user_id)
+    else:
+        user = Faculty.query.get(user_id)
+
+    if not user:
+        return jsonify({"error": "Account not found."}), 404
+
+    if user.password_hash and not check_password_hash(user.password_hash, current_password):
+        return jsonify({"error": "Current password is incorrect."}), 401
+
+    user.password_hash = generate_password_hash(new_password)
+    db.session.commit()
+    return jsonify({"message": "Password changed successfully."})
 
 
 @auth_bp.post("/forgot-password")
@@ -180,7 +224,6 @@ def reset_password():
     if otp != stored_otp:
         return jsonify({"error": "Incorrect OTP. Please try again."}), 400
 
-    # Update password
     user = Student.query.filter_by(email=email).first() or Faculty.query.filter_by(email=email).first()
     if not user:
         return jsonify({"error": "Account not found."}), 404

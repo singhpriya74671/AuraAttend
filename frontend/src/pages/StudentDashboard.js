@@ -9,7 +9,7 @@ import FaceCamera from "../components/FaceCamera";
 import {
   BookOpen, Clock, CheckCircle, LogOut, BarChart2, AlertTriangle,
   Camera, ShieldCheck, GraduationCap, ArrowLeft, ChevronRight,
-  TrendingUp, TrendingDown, Minus, Bell, XCircle,
+  TrendingUp, TrendingDown, Minus, Bell, XCircle, ChevronDown, KeyRound, X,
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import toast from "react-hot-toast";
@@ -62,6 +62,36 @@ export default function StudentDashboard() {
 
   const navigate = useNavigate();
   const name = localStorage.getItem("name") || "Student";
+  const email = localStorage.getItem("email") || "";
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [pwForm, setPwForm] = useState({ current: "", newPw: "", confirm: "" });
+  const [pwLoading, setPwLoading] = useState(false);
+
+  async function handleChangePassword() {
+    if (!pwForm.current) { alert("Enter current password."); return; }
+    if (pwForm.newPw.length < 6) { alert("New password must be at least 6 characters."); return; }
+    if (pwForm.newPw !== pwForm.confirm) { alert("Passwords do not match."); return; }
+    setPwLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${process.env.REACT_APP_API_URL || ""}/api/auth/change-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ current_password: pwForm.current, new_password: pwForm.newPw }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || "Failed");
+      alert("Password changed successfully!");
+      setShowChangePassword(false);
+      setPwForm({ current: "", newPw: "", confirm: "" });
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setPwLoading(false);
+    }
+  }
 
   // ── Data fetching ────────────────────────────────────────────────────────
   const fetchSessions = useCallback(async () => {
@@ -241,13 +271,44 @@ export default function StudentDashboard() {
                 <Camera size={11} /> No Face ID
               </span>
             )}
-            <button onClick={() => { localStorage.clear(); navigate("/login"); }}
-              className="flex items-center gap-1.5 text-sm transition"
-              style={{ color: "rgba(255,255,255,0.35)" }}
-              onMouseEnter={e => e.currentTarget.style.color = "#f87171"}
-              onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.35)"}>
-              <LogOut size={15} /> Sign Out
-            </button>
+
+            {/* Profile Dropdown */}
+            <div className="relative">
+              <button onClick={() => setShowProfileMenu(!showProfileMenu)}
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl transition-all"
+                style={{ background: showProfileMenu ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <div className="w-7 h-7 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0"
+                  style={{ background: "linear-gradient(135deg, #3b82f6, #7c3aed)" }}>
+                  {name.charAt(0).toUpperCase()}
+                </div>
+                <ChevronDown size={12} style={{ color: "rgba(255,255,255,0.4)", transform: showProfileMenu ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+              </button>
+
+              {showProfileMenu && (
+                <div className="absolute right-0 top-10 w-52 rounded-xl overflow-hidden z-50 shadow-2xl"
+                  style={{ background: "rgba(15,31,61,0.98)", border: "1px solid rgba(255,255,255,0.12)" }}>
+                  <div className="px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                    <p className="text-white text-xs font-semibold truncate">{name}</p>
+                    {email && <p className="text-xs mt-0.5 truncate" style={{ color: "rgba(255,255,255,0.4)" }}>{email}</p>}
+                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-xs" style={{ background: "rgba(59,130,246,0.2)", color: "#93c5fd" }}>Student</span>
+                  </div>
+                  <button onClick={() => { setShowProfileMenu(false); setShowChangePassword(true); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-left transition-all"
+                    style={{ color: "rgba(255,255,255,0.7)" }}
+                    onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.05)"}
+                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                    <KeyRound size={13} /> Change Password
+                  </button>
+                  <button onClick={() => { setShowProfileMenu(false); setShowLogoutConfirm(true); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-left transition-all"
+                    style={{ color: "#f87171", borderTop: "1px solid rgba(255,255,255,0.06)" }}
+                    onMouseEnter={e => e.currentTarget.style.background = "rgba(248,113,113,0.08)"}
+                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                    <LogOut size={13} /> Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -572,6 +633,75 @@ export default function StudentDashboard() {
         )}
 
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}>
+          <div className="w-full max-w-sm rounded-2xl p-6"
+            style={{ background: "rgba(15,31,61,0.98)", border: "1px solid rgba(255,255,255,0.12)", boxShadow: "0 25px 60px rgba(0,0,0,0.6)" }}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-semibold text-lg">Sign Out?</h3>
+              <button onClick={() => setShowLogoutConfirm(false)} style={{ color: "rgba(255,255,255,0.4)" }}><X size={18} /></button>
+            </div>
+            <p className="text-sm mb-6" style={{ color: "rgba(255,255,255,0.5)" }}>
+              Are you sure you want to sign out? You will need to log in again to access AuraAttend.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowLogoutConfirm(false)}
+                className="flex-1 py-2.5 rounded-xl text-sm font-medium"
+                style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                Cancel
+              </button>
+              <button onClick={() => { localStorage.clear(); navigate("/login"); }}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white"
+                style={{ background: "linear-gradient(135deg, #ef4444, #dc2626)", boxShadow: "0 4px 15px rgba(239,68,68,0.3)" }}>
+                Yes, Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Change Password Modal */}
+      {showChangePassword && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}>
+          <div className="w-full max-w-sm rounded-2xl p-6"
+            style={{ background: "rgba(15,31,61,0.98)", border: "1px solid rgba(255,255,255,0.12)", boxShadow: "0 25px 60px rgba(0,0,0,0.6)" }}>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-white font-semibold text-lg">Change Password</h3>
+              <button onClick={() => setShowChangePassword(false)} style={{ color: "rgba(255,255,255,0.4)" }}><X size={18} /></button>
+            </div>
+            {["current", "newPw", "confirm"].map((field, i) => (
+              <div key={field} className="mb-4">
+                <label className="block text-xs mb-1.5" style={{ color: "rgba(255,255,255,0.5)" }}>
+                  {["Current Password", "New Password", "Confirm New Password"][i]}
+                </label>
+                <input type="password" value={pwForm[field]}
+                  onChange={e => setPwForm(f => ({ ...f, [field]: e.target.value }))}
+                  placeholder={["Enter current password", "Min 6 characters", "Repeat new password"][i]}
+                  className="w-full px-4 py-2.5 rounded-xl text-sm text-white outline-none"
+                  style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)" }}
+                />
+              </div>
+            ))}
+            <div className="flex gap-3 mt-5">
+              <button onClick={() => setShowChangePassword(false)}
+                className="flex-1 py-2.5 rounded-xl text-sm font-medium"
+                style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                Cancel
+              </button>
+              <button onClick={handleChangePassword} disabled={pwLoading}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
+                style={{ background: "linear-gradient(135deg, #3b82f6, #1d4ed8)" }}>
+                {pwLoading ? "Saving…" : "Update Password"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

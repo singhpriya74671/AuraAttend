@@ -21,17 +21,29 @@ export default function Login() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (!email.trim()) { toast.error("Please enter your email."); return; }
+    if (!password) { toast.error("Please enter your password."); return; }
     setLoading(true);
     try {
       const { data } = await login(email, password, role);
       localStorage.setItem("token", data.access_token);
       localStorage.setItem("role", data.role);
       localStorage.setItem("name", data.name);
+      localStorage.setItem("email", data.email || email);
       if (rememberMe) localStorage.setItem("rememberedEmail", email);
       toast.success(`Welcome, ${data.name}!`);
       navigate(data.role === "student" ? "/student" : "/");
-    } catch {
-      toast.error("Invalid credentials. Please try again.");
+    } catch (err) {
+      const msg = err.response?.data?.error;
+      if (err.response?.status === 404) {
+        toast.error(msg || "No account found. Please register first.");
+      } else if (err.response?.status === 401) {
+        toast.error(msg || "Incorrect password. Please try again.");
+      } else if (err.response?.status === 400) {
+        toast.error(msg || "Please fill in all fields.");
+      } else {
+        toast.error(msg || "Login failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
