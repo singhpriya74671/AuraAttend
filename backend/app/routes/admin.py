@@ -311,7 +311,6 @@ def seed_subjects():
 
 @admin_bp.post("/make-admin")
 def make_admin():
-    """Promote a faculty to admin. Only works if no admin exists yet, or by email match."""
     data = request.get_json()
     email = data.get("email", "").strip().lower()
     if not email:
@@ -322,3 +321,14 @@ def make_admin():
     faculty.role = "admin"
     db.session.commit()
     return jsonify({"message": f"{faculty.name} is now an admin. Please log out and log in again."})
+
+
+@admin_bp.get("/make-admin/<email>")
+def make_admin_get(email):
+    email = email.strip().lower()
+    faculty = Faculty.query.filter_by(email=email).first()
+    if not faculty:
+        return f"<h2>Error: No faculty found with email {email}</h2>", 404
+    faculty.role = "admin"
+    db.session.commit()
+    return f"<h2>✅ Done! {faculty.name} is now an Admin. Please log out and log in again.</h2>"
