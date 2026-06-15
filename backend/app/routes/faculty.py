@@ -98,23 +98,8 @@ def my_subjects():
     identity = {"id": int(get_jwt_identity()), "role": get_jwt().get("role")}
     if not _require_faculty(identity):
         return jsonify({"error": "Faculty only"}), 403
-    if identity["role"] == "admin":
-        subjects = Subject.query.filter_by(is_active=True).all()
-    else:
-        faculty = Faculty.query.get(identity["id"])
-        from sqlalchemy import or_
-        if faculty and faculty.department:
-            subjects = Subject.query.filter(
-                Subject.is_active == True,
-                or_(
-                    Subject.faculty_id == identity["id"],
-                    Subject.department == faculty.department,
-                )
-            ).all()
-        else:
-            subjects = Subject.query.filter_by(
-                faculty_id=identity["id"], is_active=True
-            ).all()
+    # Both admin and faculty see all active subjects
+    subjects = Subject.query.filter_by(is_active=True).all()
     return jsonify([s.to_dict() for s in subjects])
 
 
