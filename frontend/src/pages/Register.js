@@ -200,7 +200,7 @@ export default function Register() {
                   <div className="relative">
                     <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "rgba(255,255,255,0.3)" }} />
                     <input type="text" value={form.name} onChange={e => update("name", e.target.value)}
-                      placeholder="Priya Sharma" style={inputStyle}
+                      placeholder="Enter your full name" style={inputStyle}
                       onFocus={e => e.target.style.borderColor = "rgba(99,130,246,0.6)"}
                       onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.12)"} />
                   </div>
@@ -212,7 +212,7 @@ export default function Register() {
                   <div className="relative">
                     <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "rgba(255,255,255,0.3)" }} />
                     <input type="email" value={form.email} onChange={e => update("email", e.target.value)}
-                      placeholder="priya@igdtuw.ac.in" style={inputStyle}
+                      placeholder="Enter your email address" style={inputStyle}
                       onFocus={e => e.target.style.borderColor = "rgba(99,130,246,0.6)"}
                       onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.12)"} />
                   </div>
@@ -257,7 +257,7 @@ export default function Register() {
                   <div className="relative">
                     <Hash size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "rgba(255,255,255,0.3)" }} />
                     <input type="text" value={form.roll_number} onChange={e => update("roll_number", e.target.value)}
-                      placeholder="00714803122" style={inputStyle}
+                      placeholder="Enter your roll number" style={inputStyle}
                       onFocus={e => e.target.style.borderColor = "rgba(99,130,246,0.6)"}
                       onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.12)"} />
                   </div>

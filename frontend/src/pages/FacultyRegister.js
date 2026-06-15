@@ -128,7 +128,7 @@ export default function FacultyRegister() {
             <div className="relative">
               <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "rgba(255,255,255,0.3)" }} />
               <input type="text" value={form.name} onChange={(e) => update("name", e.target.value)}
-                placeholder="Dr. Priya Sharma" style={inputStyle}
+                placeholder="Enter your full name" style={inputStyle}
                 onFocus={e => e.target.style.borderColor = "rgba(99,130,246,0.6)"}
                 onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.12)"} />
             </div>
