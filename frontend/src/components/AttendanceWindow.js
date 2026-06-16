@@ -1,12 +1,13 @@
 import { useEffect, useState, useCallback } from "react";
-import { startSession, stopSession, getActiveSession } from "../services/api";
-import { Play, Square, Clock, Key } from "lucide-react";
+import { startSession, stopSession, getActiveSession, getSessionCheckins } from "../services/api";
+import { Play, Square, Clock, Key, MapPin, MapPinOff } from "lucide-react";
 
 export default function AttendanceWindow({ subjectId }) {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(false);
   const [duration, setDuration] = useState(10);
   const [remaining, setRemaining] = useState(0);
+  const [checkins, setCheckins] = useState([]);
 
   const fetchSession = useCallback(async () => {
     try {
@@ -16,11 +17,22 @@ export default function AttendanceWindow({ subjectId }) {
     } catch {}
   }, [subjectId]);
 
+  const fetchCheckins = useCallback(async () => {
+    try { const { data } = await getSessionCheckins(subjectId); setCheckins(data); } catch {}
+  }, [subjectId]);
+
   useEffect(() => {
     fetchSession();
     const interval = setInterval(fetchSession, 15000);
     return () => clearInterval(interval);
   }, [fetchSession]);
+
+  useEffect(() => {
+    if (!session) { setCheckins([]); return; }
+    fetchCheckins();
+    const interval = setInterval(fetchCheckins, 8000);
+    return () => clearInterval(interval);
+  }, [session, fetchCheckins]);
 
   useEffect(() => {
     if (!session) return;
@@ -94,6 +106,32 @@ export default function AttendanceWindow({ subjectId }) {
             style={{ background: "linear-gradient(135deg, #ef4444, #b91c1c)", boxShadow: "0 4px 15px rgba(239,68,68,0.3)" }}>
             <Square size={14} /> Stop Attendance
           </button>
+
+          <div>
+            <p className="text-xs font-medium mb-2" style={{ color: "rgba(255,255,255,0.4)" }}>
+              {checkins.length === 0 ? "No check-ins yet" : `${checkins.length} student(s) marked`}
+            </p>
+            {checkins.length > 0 && (
+              <div className="space-y-1.5 max-h-56 overflow-y-auto">
+                {checkins.map((c) => (
+                  <div key={`${c.student_id}-${c.marked_at}`}
+                    className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-xs"
+                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                    <span className="text-white font-medium truncate">{c.name} <span style={{ color: "rgba(255,255,255,0.35)" }}>({c.roll_number})</span></span>
+                    {c.geo_verified ? (
+                      <span className="flex items-center gap-1 flex-shrink-0" style={{ color: "#4ade80" }}>
+                        <MapPin size={12} /> On campus
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 flex-shrink-0" style={{ color: "#f87171" }}>
+                        <MapPinOff size={12} /> Outside campus
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       ) : (
         <div className="space-y-4">

@@ -100,6 +100,9 @@ export const stopSession = (subjectId) =>
 export const getActiveSession = (subjectId) =>
   api.get(`/api/faculty/session/active/${subjectId}`);
 
+export const getSessionCheckins = (subjectId) =>
+  api.get(`/api/faculty/session/${subjectId}/checkins`);
+
 // Class Cancellation
 export const cancelClass = (subjectId, cancelDate, reason) =>
   api.post("/api/faculty/cancel-class", { subject_id: subjectId, cancel_date: cancelDate, reason });

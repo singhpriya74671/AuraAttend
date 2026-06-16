@@ -92,6 +92,45 @@ def get_active_session(subject_id):
     return jsonify({**session.to_dict(), "active": True, "remaining_seconds": remaining})
 
 
+@faculty_bp.get("/session/<int:subject_id>/checkins")
+@jwt_required()
+def session_checkins(subject_id):
+    identity = {"id": int(get_jwt_identity()), "role": get_jwt().get("role")}
+    if not _require_faculty(identity):
+        return jsonify({"error": "Faculty only"}), 403
+
+    session = (
+        AttendanceSession.query.filter_by(subject_id=subject_id)
+        .order_by(AttendanceSession.started_at.desc())
+        .first()
+    )
+    if not session:
+        return jsonify([])
+
+    records = (
+        db.session.query(AttendanceRecord, Student)
+        .join(Student, Student.id == AttendanceRecord.student_id)
+        .filter(
+            AttendanceRecord.subject_id == subject_id,
+            AttendanceRecord.timestamp >= session.started_at,
+        )
+        .order_by(AttendanceRecord.timestamp.desc())
+        .all()
+    )
+    return jsonify([
+        {
+            "student_id": student.id,
+            "name": student.name,
+            "roll_number": student.roll_number,
+            "geo_verified": record.geo_verified,
+            "gps_lat": record.gps_lat,
+            "gps_lng": record.gps_lng,
+            "marked_at": record.timestamp.isoformat(),
+        }
+        for record, student in records
+    ])
+
+
 @faculty_bp.get("/subjects")
 @jwt_required()
 def my_subjects():
