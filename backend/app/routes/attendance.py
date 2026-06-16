@@ -433,13 +433,12 @@ def my_notices():
     student_id = int(get_jwt_identity())
     student = Student.query.get_or_404(student_id)
 
-    # Find cancellations for subjects matching student's dept+semester
+    # Find cancellations for subjects in the student's department
     cancellations = (
         db.session.query(ClassCancellation)
         .join(Subject, Subject.id == ClassCancellation.subject_id)
         .filter(
             Subject.department == student.department,
-            Subject.semester == student.semester,
             ClassCancellation.is_active == True,
         )
         .order_by(ClassCancellation.cancel_date.desc())

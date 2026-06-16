@@ -71,7 +71,7 @@ export const downloadReport = (subjectId) =>
   api.get(`/api/faculty/report/${subjectId}`, { responseType: "blob" });
 
 export const askChatbot = (subjectId, query) =>
-  api.post("/api/faculty/chatbot", { subject_id: subjectId, query });
+  api.post("/api/chatbot", { subject_id: subjectId, query });
 
 export const getAdminStats = () => api.get("/api/admin/dashboard/stats");
 

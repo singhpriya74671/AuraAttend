@@ -225,14 +225,14 @@ export default function Login() {
               <p className="text-center text-xs mt-3" style={{ color: "rgba(255,255,255,0.4)" }}>
                 New student?{" "}
                 <Link to="/register" className="text-blue-400 hover:text-blue-300 font-semibold transition">
-                  Create your account â†’
+                  Create your account →
                 </Link>
               </p>
             ) : (
               <p className="text-center text-xs mt-3" style={{ color: "rgba(255,255,255,0.4)" }}>
                 New faculty member?{" "}
                 <Link to="/register/faculty" className="text-blue-400 hover:text-blue-300 font-semibold transition">
-                  Create your account â†’
+                  Create your account →
                 </Link>
               </p>
             )}
@@ -242,7 +242,7 @@ export default function Login() {
         {/* Footer */}
         <div className="px-8 pb-6 text-center">
           <p className="text-xs" style={{ color: "rgba(255,255,255,0.2)" }}>
-            ðŸ”’ Secured with AES-256 encryption &nbsp;Â·&nbsp; IGDTUW Â© 2026
+            🔒 Secured with AES-256 encryption &nbsp;·&nbsp; IGDTUW © 2026
           </p>
         </div>
       </div>

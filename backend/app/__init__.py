@@ -32,6 +32,13 @@ def create_app(env=None):
     app = Flask(__name__)
     app.config.from_object(config[env])
 
+    # Render sits behind a reverse proxy — without this, every request
+    # looks like it comes from 127.0.0.1, which collapses rate limiting
+    # (and anything else keyed by client IP) into one shared bucket for
+    # all users.
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
@@ -45,10 +52,10 @@ def create_app(env=None):
         limiter = Limiter(
             get_remote_address,
             app=app,
-            default_limits=["200 per day", "50 per hour"],
-            storage_uri=app.config.get("RATELIMIT_STORAGE_URI", "memory://"),
+            default_limits=["2000 per day", "600 per hour"],
+            storage_uri="memory://",
         )
-    except ImportError:
+    except Exception:
         pass
 
     # WebSockets
@@ -69,11 +76,13 @@ def create_app(env=None):
     from app.routes.attendance import attendance_bp
     from app.routes.faculty import faculty_bp
     from app.routes.admin import admin_bp
+    from app.routes.chatbot import chatbot_bp
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(attendance_bp, url_prefix="/api/attendance")
     app.register_blueprint(faculty_bp, url_prefix="/api/faculty")
     app.register_blueprint(admin_bp, url_prefix="/api/admin")
+    app.register_blueprint(chatbot_bp, url_prefix="/api/chatbot")
 
     @app.get("/api/health")
     def health():

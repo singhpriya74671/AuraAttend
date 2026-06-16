@@ -6,6 +6,7 @@ import {
   getMySubjectDetail, getMyNotices,
 } from "../services/api";
 import FaceCamera from "../components/FaceCamera";
+import ChatBot from "../components/ChatBot";
 import {
   BookOpen, Clock, CheckCircle, LogOut, BarChart2, AlertTriangle,
   Camera, ShieldCheck, GraduationCap, ArrowLeft, ChevronRight,
@@ -555,7 +556,7 @@ export default function StudentDashboard() {
             {!noticesLoaded ? (
               <div className="text-center py-16">
                 <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Loading noticesâ€¦</p>
+                <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Loading notices…</p>
               </div>
             ) : notices.length === 0 ? (
               <div className="text-center py-16 rounded-2xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
@@ -662,6 +663,8 @@ export default function StudentDashboard() {
           </div>
         </div>
       )}
+
+      <ChatBot />
 
       {/* Change Password Modal */}
       {showChangePassword && (
@@ -775,7 +778,7 @@ function YearView({ summary, selYear, onSelect }) {
               {withData > 0 ? (
                 <>
                   <div className="text-xl font-bold" style={{ color: pctColor(avg) }}>{avg}%</div>
-                  <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>avg Â· {total} subjects</div>
+                  <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>avg · {total} subjects</div>
                 </>
               ) : (
                 <div className="text-xs" style={{ color: "rgba(255,255,255,0.25)" }}>No data yet</div>
@@ -821,7 +824,7 @@ function SemesterView({ year, summary, onBack, onSelect }) {
             {total > 0 ? (
               <>
                 <div className="text-2xl font-bold mb-0.5" style={{ color: pctColor(avg) }}>{avg}%</div>
-                <div className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>avg Â· {total} subjects</div>
+                <div className="text-xs mb-3" style={{ color: "rgba(255,255,255,0.3)" }}>avg · {total} subjects</div>
                 <div className="w-full rounded-full h-1.5" style={{ background: "rgba(255,255,255,0.08)" }}>
                   <div className="h-1.5 rounded-full" style={{ width: `${Math.min(avg, 100)}%`, background: barColor(avg) }} />
                 </div>
@@ -890,7 +893,7 @@ function SubjectsView({ year, yearSem, subjects, stats, onBack, onSubject }) {
       )}
 
       <h3 className="text-sm font-semibold mb-3" style={{ color: "rgba(255,255,255,0.6)" }}>
-        {subjects.length} Subject{subjects.length !== 1 ? "s" : ""} Â· Semester {sem}
+        {subjects.length} Subject{subjects.length !== 1 ? "s" : ""} · Semester {sem}
       </h3>
 
       {subjects.length === 0 ? (
@@ -986,7 +989,7 @@ function DetailView({ subject, detail, loading, year, yearSem, onBack }) {
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-lg font-bold text-white leading-tight">{d.subject_name}</h2>
-            <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{d.subject_code} Â· Semester {d.semester}</p>
+            <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>{d.subject_code} · Semester {d.semester}</p>
           </div>
           <div className="text-right">
             <div className="text-4xl font-bold" style={{ color: pctColor(d.percentage) }}>{d.percentage}%</div>
@@ -1078,10 +1081,10 @@ function DetailView({ subject, detail, loading, year, yearSem, onBack }) {
                       {r.status}
                     </span>
                     {r.geo_verified && (
-                      <span className="text-xs" style={{ color: "rgba(96,165,250,0.7)" }}>ðŸ“ geo</span>
+                      <span className="text-xs" style={{ color: "rgba(96,165,250,0.7)" }}>📍 geo</span>
                     )}
                     {r.face_confidence > 0 && (
-                      <span className="text-xs" style={{ color: "rgba(167,139,250,0.7)" }}>ðŸ” {r.face_confidence}%</span>
+                      <span className="text-xs" style={{ color: "rgba(167,139,250,0.7)" }}>🔍 {r.face_confidence}%</span>
                     )}
                   </div>
                 </div>

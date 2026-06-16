@@ -117,7 +117,7 @@ export default function FacultyRegister() {
           <p className="text-sm mt-0.5" style={{ color: "rgba(255,255,255,0.5)" }}>Faculty Registration</p>
           <p className="text-xs mt-2 px-2 py-1 rounded-lg inline-block"
             style={{ background: "rgba(59,130,246,0.15)", color: "rgba(147,197,253,0.9)", border: "1px solid rgba(59,130,246,0.25)" }}>
-            IGDTUW â€” Faculty / Lecturer Account
+            IGDTUW — Faculty / Lecturer Account
           </p>
         </div>
 
