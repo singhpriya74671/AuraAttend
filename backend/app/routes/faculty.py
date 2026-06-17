@@ -165,9 +165,36 @@ def subject_attendance(subject_id):
         .all()
     )
 
+    # Latest geo info per student
+    latest_ts_sq = (
+        db.session.query(
+            AttendanceRecord.student_id,
+            func.max(AttendanceRecord.timestamp).label("last_ts"),
+        )
+        .filter(AttendanceRecord.subject_id == subject_id)
+        .group_by(AttendanceRecord.student_id)
+        .subquery()
+    )
+    geo_rows = (
+        db.session.query(
+            AttendanceRecord.student_id,
+            AttendanceRecord.geo_verified,
+            AttendanceRecord.gps_lat,
+            AttendanceRecord.gps_lng,
+        )
+        .join(latest_ts_sq, db.and_(
+            AttendanceRecord.student_id == latest_ts_sq.c.student_id,
+            AttendanceRecord.timestamp == latest_ts_sq.c.last_ts,
+        ))
+        .filter(AttendanceRecord.subject_id == subject_id)
+        .all()
+    )
+    geo_map = {g.student_id: g for g in geo_rows}
+
     result = []
     for r in rows:
         pct = round((r.present / r.total * 100) if r.total else 0, 2)
+        geo = geo_map.get(r.id)
         result.append({
             "student_id": r.id,
             "roll_number": r.roll_number,
@@ -175,6 +202,9 @@ def subject_attendance(subject_id):
             "total": r.total,
             "present": r.present,
             "percentage": pct,
+            "geo_verified": geo.geo_verified if geo else None,
+            "gps_lat": geo.gps_lat if geo else None,
+            "gps_lng": geo.gps_lng if geo else None,
         })
     return jsonify(result)
 

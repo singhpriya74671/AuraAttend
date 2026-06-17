@@ -5,12 +5,34 @@ export default function AttendanceTable({ records, onOverride }) {
     return { background: "rgba(239,68,68,0.15)", color: "#f87171", border: "1px solid rgba(239,68,68,0.25)" };
   }
 
+  function LocationCell({ geo_verified, gps_lat, gps_lng }) {
+    if (gps_lat == null || gps_lng == null) {
+      return <span style={{ color: "rgba(255,255,255,0.2)", fontSize: "11px" }}>No GPS data</span>;
+    }
+    const mapsUrl = `https://www.google.com/maps?q=${gps_lat},${gps_lng}`;
+    return (
+      <div>
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium mb-1"
+          style={geo_verified
+            ? { background: "rgba(34,197,94,0.15)", color: "#4ade80", border: "1px solid rgba(34,197,94,0.25)" }
+            : { background: "rgba(239,68,68,0.15)", color: "#f87171", border: "1px solid rgba(239,68,68,0.25)" }}>
+          {geo_verified ? "✓ On Campus" : "✗ Outside Campus"}
+        </span>
+        <br />
+        <a href={mapsUrl} target="_blank" rel="noreferrer"
+          style={{ color: "#60a5fa", fontSize: "11px", textDecoration: "underline" }}>
+          {gps_lat.toFixed(5)}, {gps_lng.toFixed(5)}
+        </a>
+      </div>
+    );
+  }
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr style={{ background: "rgba(255,255,255,0.04)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-            {["Roll No.", "Name", "Classes", "Present", "Percentage", "Actions"].map((h) => (
+            {["Roll No.", "Name", "Classes", "Present", "Percentage", "Last Location", "Actions"].map((h) => (
               <th key={h} className="text-left px-4 py-3 font-medium text-xs uppercase tracking-wide"
                 style={{ color: "rgba(255,255,255,0.35)" }}>{h}</th>
             ))}
@@ -29,6 +51,9 @@ export default function AttendanceTable({ records, onOverride }) {
                 <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={pctStyle(r.percentage)}>
                   {r.percentage}%
                 </span>
+              </td>
+              <td className="px-4 py-3">
+                <LocationCell geo_verified={r.geo_verified} gps_lat={r.gps_lat} gps_lng={r.gps_lng} />
               </td>
               <td className="px-4 py-3">
                 <button onClick={() => onOverride(r.student_id, "present")}
@@ -50,7 +75,7 @@ export default function AttendanceTable({ records, onOverride }) {
           ))}
           {records.length === 0 && (
             <tr>
-              <td colSpan={6} className="px-4 py-8 text-center" style={{ color: "rgba(255,255,255,0.25)" }}>
+              <td colSpan={7} className="px-4 py-8 text-center" style={{ color: "rgba(255,255,255,0.25)" }}>
                 No attendance records yet.
               </td>
             </tr>
