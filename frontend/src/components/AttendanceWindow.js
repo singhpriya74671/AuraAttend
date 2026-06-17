@@ -113,22 +113,45 @@ export default function AttendanceWindow({ subjectId }) {
             </p>
             {checkins.length > 0 && (
               <div className="space-y-1.5 max-h-56 overflow-y-auto">
-                {checkins.map((c) => (
-                  <div key={`${c.student_id}-${c.marked_at}`}
-                    className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-xs"
-                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                    <span className="text-white font-medium truncate">{c.name} <span style={{ color: "rgba(255,255,255,0.35)" }}>({c.roll_number})</span></span>
-                    {c.geo_verified ? (
-                      <span className="flex items-center gap-1 flex-shrink-0" style={{ color: "#4ade80" }}>
-                        <MapPin size={12} /> On campus
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1 flex-shrink-0" style={{ color: "#f87171" }}>
-                        <MapPinOff size={12} /> Outside campus
-                      </span>
-                    )}
-                  </div>
-                ))}
+                {checkins.map((c) => {
+                  const mapsUrl = c.gps_lat && c.gps_lng
+                    ? `https://www.google.com/maps?q=${c.gps_lat},${c.gps_lng}`
+                    : null;
+                  const time = new Date(c.marked_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+                  return (
+                    <div key={`${c.student_id}-${c.marked_at}`}
+                      className="px-3 py-2 rounded-lg text-xs"
+                      style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-white font-medium truncate">
+                          {c.name} <span style={{ color: "rgba(255,255,255,0.35)" }}>({c.roll_number})</span>
+                        </span>
+                        <span style={{ color: "rgba(255,255,255,0.3)" }} className="flex-shrink-0">{time}</span>
+                      </div>
+                      <div className="flex items-center justify-between mt-1">
+                        {c.geo_verified ? (
+                          <span className="flex items-center gap-1" style={{ color: "#4ade80" }}>
+                            <MapPin size={11} /> On campus
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1" style={{ color: "#f87171" }}>
+                            <MapPinOff size={11} /> Outside campus
+                          </span>
+                        )}
+                        {mapsUrl ? (
+                          <a href={mapsUrl} target="_blank" rel="noreferrer"
+                            className="flex items-center gap-1 underline"
+                            style={{ color: "#60a5fa", fontSize: "10px" }}>
+                            <MapPin size={10} />
+                            {c.gps_lat.toFixed(4)}, {c.gps_lng.toFixed(4)}
+                          </a>
+                        ) : (
+                          <span style={{ color: "rgba(255,255,255,0.2)", fontSize: "10px" }}>No GPS</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
