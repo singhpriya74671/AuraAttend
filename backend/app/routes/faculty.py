@@ -181,6 +181,7 @@ def subject_attendance(subject_id):
             AttendanceRecord.geo_verified,
             AttendanceRecord.gps_lat,
             AttendanceRecord.gps_lng,
+            AttendanceRecord.timestamp,
         )
         .join(latest_ts_sq, db.and_(
             AttendanceRecord.student_id == latest_ts_sq.c.student_id,
@@ -205,6 +206,7 @@ def subject_attendance(subject_id):
             "geo_verified": geo.geo_verified if geo else None,
             "gps_lat": geo.gps_lat if geo else None,
             "gps_lng": geo.gps_lng if geo else None,
+            "last_marked_at": geo.timestamp.isoformat() if geo else None,
         })
     return jsonify(result)
 
