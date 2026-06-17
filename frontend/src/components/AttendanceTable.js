@@ -6,25 +6,15 @@ export default function AttendanceTable({ records, onOverride }) {
   }
 
   function LocationCell({ geo_verified, gps_lat, gps_lng }) {
-    if (gps_lat == null || gps_lng == null) {
-      return <span style={{ color: "rgba(255,255,255,0.2)", fontSize: "11px" }}>No GPS data</span>;
-    }
-    const mapsUrl = `https://www.google.com/maps?q=${gps_lat},${gps_lng}`;
-    return (
-      <div>
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium mb-1"
-          style={geo_verified
-            ? { background: "rgba(34,197,94,0.15)", color: "#4ade80", border: "1px solid rgba(34,197,94,0.25)" }
-            : { background: "rgba(239,68,68,0.15)", color: "#f87171", border: "1px solid rgba(239,68,68,0.25)" }}>
-          {geo_verified ? "✓ On Campus" : "✗ Outside Campus"}
+    if (geo_verified) {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
+          style={{ background: "rgba(34,197,94,0.15)", color: "#4ade80", border: "1px solid rgba(34,197,94,0.25)" }}>
+          ✓ Inside Campus
         </span>
-        <br />
-        <a href={mapsUrl} target="_blank" rel="noreferrer"
-          style={{ color: "#60a5fa", fontSize: "11px", textDecoration: "underline" }}>
-          {gps_lat.toFixed(5)}, {gps_lng.toFixed(5)}
-        </a>
-      </div>
-    );
+      );
+    }
+    return <span style={{ color: "rgba(255,255,255,0.2)", fontSize: "11px" }}>—</span>;
   }
 
   return (

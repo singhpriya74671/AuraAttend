@@ -168,8 +168,7 @@ export default function StudentDashboard() {
         const coords = await getCurrentGps();
         if (!coords.lat) toast("Getting location failed — marking without GPS.", { icon: "⚠️" });
         const { data } = await verifyOtp(session.subject_id, otp, coords.lat, coords.lng);
-        const locMsg = data.geo_verified ? " · Location verified ✓" : " · Location outside campus";
-        toast.success(data.message + locMsg);
+        toast.success(data.message);
         setMarked(m => ({ ...m, [session.subject_id]: true }));
         fetchSummary();
       } catch (err) {
