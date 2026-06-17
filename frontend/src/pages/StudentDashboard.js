@@ -112,7 +112,8 @@ export default function StudentDashboard() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (p) => setGpsCoords({ lat: p.coords.latitude, lng: p.coords.longitude }),
-        () => setGpsCoords({ lat: null, lng: null })
+        () => setGpsCoords({ lat: null, lng: null }),
+        { enableHighAccuracy: true, timeout: 10000 }
       );
     }
     const si = setInterval(fetchSessions, 10000);
@@ -140,6 +141,21 @@ export default function StudentDashboard() {
   }, [summary]); // eslint-disable-line
 
   // â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  function getCurrentGps() {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) { resolve({ lat: null, lng: null }); return; }
+      navigator.geolocation.getCurrentPosition(
+        (p) => {
+          const coords = { lat: p.coords.latitude, lng: p.coords.longitude };
+          setGpsCoords(coords);
+          resolve(coords);
+        },
+        () => resolve(gpsCoords),
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    });
+  }
+
   async function handleOtpSubmit(session) {
     const otp = (otpInputs[session.subject_id] || "").trim();
     if (!otp) { toast.error("Please enter the OTP."); return; }
@@ -149,7 +165,9 @@ export default function StudentDashboard() {
     } else {
       setSubmitting(s => ({ ...s, [session.subject_id]: true }));
       try {
-        const { data } = await verifyOtp(session.subject_id, otp, gpsCoords.lat, gpsCoords.lng);
+        const coords = await getCurrentGps();
+        if (!coords.lat) toast("Getting location failed — marking without GPS.", { icon: "⚠️" });
+        const { data } = await verifyOtp(session.subject_id, otp, coords.lat, coords.lng);
         const locMsg = data.geo_verified ? " · Location verified ✓" : " · Location outside campus";
         toast.success(data.message + locMsg);
         setMarked(m => ({ ...m, [session.subject_id]: true }));
@@ -414,6 +432,14 @@ export default function StudentDashboard() {
                       </div>
                     ) : (
                       <div className="space-y-3">
+                        <div className="flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg w-fit"
+                          style={gpsCoords.lat
+                            ? { background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.25)", color: "#4ade80" }
+                            : { background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.25)", color: "#fbbf24" }}>
+                          {gpsCoords.lat
+                            ? <>📍 Location ready ({gpsCoords.lat.toFixed(4)}, {gpsCoords.lng.toFixed(4)})</>
+                            : <>📍 Getting your location… (allow location permission)</>}
+                        </div>
                         <label className="block text-sm font-medium" style={{ color: "rgba(255,255,255,0.6)" }}>
                           Enter OTP from your teacher {faceRegistered && <span className="text-blue-400">(Face scan follows)</span>}
                         </label>
