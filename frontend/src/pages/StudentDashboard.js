@@ -150,7 +150,8 @@ export default function StudentDashboard() {
       setSubmitting(s => ({ ...s, [session.subject_id]: true }));
       try {
         const { data } = await verifyOtp(session.subject_id, otp, gpsCoords.lat, gpsCoords.lng);
-        toast.success(data.message);
+        const locMsg = data.geo_verified ? " · Location verified ✓" : " · Location outside campus";
+        toast.success(data.message + locMsg);
         setMarked(m => ({ ...m, [session.subject_id]: true }));
         fetchSummary();
       } catch (err) {
