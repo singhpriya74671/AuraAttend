@@ -123,10 +123,12 @@ export default function AttendanceWindow({ subjectId }) {
                         {c.name} <span style={{ color: "rgba(255,255,255,0.35)" }}>({c.roll_number})</span>
                       </span>
                       <div className="flex items-center gap-2 flex-shrink-0">
-                        {c.geo_verified && (
+                        {c.geo_verified ? (
                           <span className="flex items-center gap-1" style={{ color: "#4ade80" }}>
                             <MapPin size={11} /> Inside Campus
                           </span>
+                        ) : (
+                          <span style={{ color: "#f87171", fontSize: "11px" }}>Outside Campus</span>
                         )}
                         <span style={{ color: "rgba(255,255,255,0.3)" }}>{time}</span>
                       </div>

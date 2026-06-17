@@ -14,6 +14,14 @@ export default function AttendanceTable({ records, onOverride }) {
         </span>
       );
     }
+    if (gps_lat != null) {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
+          style={{ background: "rgba(239,68,68,0.15)", color: "#f87171", border: "1px solid rgba(239,68,68,0.25)" }}>
+          ✗ Outside Campus
+        </span>
+      );
+    }
     return <span style={{ color: "rgba(255,255,255,0.2)", fontSize: "11px" }}>—</span>;
   }
 
