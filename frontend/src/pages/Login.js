@@ -21,7 +21,7 @@ export default function Login() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!email.trim()) { toast.error("Please enter your email."); return; }
+    if (!email.trim()) { toast.error(role === "student" ? "Please enter your email or roll number." : "Please enter your email."); return; }
     if (!password) { toast.error("Please enter your password."); return; }
     setLoading(true);
     try {
@@ -159,8 +159,8 @@ export default function Login() {
               </label>
               <div className="relative">
                 <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: "rgba(255,255,255,0.35)" }} />
-                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-                  placeholder={role === "student" ? "student@igdtuw.ac.in" : "faculty@igdtuw.ac.in"}
+                <input type={role === "student" ? "text" : "email"} required value={email} onChange={(e) => setEmail(e.target.value)}
+                  placeholder={role === "student" ? "Email or Roll Number (e.g. 22101001)" : "faculty@igdtuw.ac.in"}
                   className="w-full pl-11 pr-4 py-3 rounded-xl text-sm text-white placeholder-gray-500 outline-none transition-all"
                   style={{
                     background: "rgba(255,255,255,0.07)",

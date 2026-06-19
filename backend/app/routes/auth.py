@@ -26,9 +26,12 @@ def login():
         return jsonify({"error": "Password is required."}), 400
 
     if role_hint == "student":
-        user = Student.query.filter_by(email=email).first()
+        if "@" in email:
+            user = Student.query.filter_by(email=email).first()
+        else:
+            user = Student.query.filter_by(roll_number=email).first()
         if user is None:
-            return jsonify({"error": "No account found with this email. Please register first."}), 404
+            return jsonify({"error": "No account found. Check your email / roll number."}), 404
 
         # If account was auto-created without a password, let them set one
         if user.password_hash:
