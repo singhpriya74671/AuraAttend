@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from sqlalchemy import func, case
 from app import db
 from app.models.attendance import AttendanceRecord, AttendanceSession, ClassCancellation
 from app.models.subject import Subject, Timetable
@@ -468,43 +469,57 @@ def my_notices():
 @attendance_bp.get("/my-summary")
 @jwt_required()
 def my_summary():
-    identity = {"id": int(get_jwt_identity()), "role": get_jwt().get("role")}
-    student_id = identity["id"]
+    student_id = int(get_jwt_identity())
 
-    subjects = Subject.query.filter_by(is_active=True).all()
-    result = []
-    for subject in subjects:
-        total = AttendanceRecord.query.filter_by(
-            student_id=student_id, subject_id=subject.id
-        ).count()
-        present = AttendanceRecord.query.filter(
-            AttendanceRecord.student_id == student_id,
-            AttendanceRecord.subject_id == subject.id,
-            AttendanceRecord.status.in_(["present", "partial"]),
-        ).count()
-        pct = round((present / total * 100) if total else 0, 1)
-
-        recent = (
-            AttendanceRecord.query
-            .filter_by(student_id=student_id, subject_id=subject.id)
-            .order_by(AttendanceRecord.timestamp.desc())
-            .limit(5)
-            .all()
+    # Single query: all subjects + attendance counts in one shot
+    rows = (
+        db.session.query(
+            Subject.id,
+            Subject.name,
+            Subject.code,
+            Subject.semester,
+            func.count(AttendanceRecord.id).label("total"),
+            func.sum(case(
+                (AttendanceRecord.status.in_(["present", "partial"]), 1), else_=0
+            )).label("present"),
         )
+        .outerjoin(AttendanceRecord, db.and_(
+            AttendanceRecord.subject_id == Subject.id,
+            AttendanceRecord.student_id == student_id,
+        ))
+        .filter(Subject.is_active == True)
+        .group_by(Subject.id, Subject.name, Subject.code, Subject.semester)
+        .all()
+    )
 
+    # Fetch recent records for all subjects in one query
+    recent_rows = (
+        AttendanceRecord.query
+        .filter_by(student_id=student_id)
+        .order_by(AttendanceRecord.subject_id, AttendanceRecord.timestamp.desc())
+        .all()
+    )
+    from collections import defaultdict
+    recent_map = defaultdict(list)
+    for r in recent_rows:
+        if len(recent_map[r.subject_id]) < 5:
+            recent_map[r.subject_id].append({"date": r.timestamp.strftime("%d %b"), "status": r.status})
+
+    result = []
+    for row in rows:
+        total = row.total or 0
+        present = int(row.present or 0)
+        pct = round((present / total * 100) if total else 0, 1)
         result.append({
-            "subject_id": subject.id,
-            "subject_name": subject.name,
-            "subject_code": subject.code,
-            "semester": subject.semester,
+            "subject_id": row.id,
+            "subject_name": row.name,
+            "subject_code": row.code,
+            "semester": row.semester,
             "total_classes": total,
             "present": present,
             "absent": total - present,
             "percentage": pct,
-            "recent": [
-                {"date": r.timestamp.strftime("%d %b"), "status": r.status}
-                for r in recent
-            ],
+            "recent": recent_map[row.id],
         })
 
     result.sort(key=lambda x: x["percentage"])

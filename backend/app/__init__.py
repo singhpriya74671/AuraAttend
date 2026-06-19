@@ -5,6 +5,7 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from flask_mail import Mail
+from flask_compress import Compress
 try:
     from celery import Celery
     celery = Celery()
@@ -19,6 +20,7 @@ db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
 mail = Mail()
+compress = Compress()
 
 # Initialized later in create_app
 limiter = None
@@ -43,6 +45,7 @@ def create_app(env=None):
     migrate.init_app(app, db)
     jwt.init_app(app)
     mail.init_app(app)
+    compress.init_app(app)
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
     # Rate limiting
