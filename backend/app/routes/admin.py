@@ -302,9 +302,12 @@ def seed_subjects():
     ]
     added = 0
     for s in subjects:
-        if not Subject.query.filter_by(code=s["code"]).first():
-            db.session.add(Subject(code=s["code"], name=s["name"], department="ECE-AI", semester=s["semester"]))
+        existing = Subject.query.filter_by(code=s["code"]).first()
+        if not existing:
+            db.session.add(Subject(code=s["code"], name=s["name"], department="ECE-AI", semester=s["semester"], is_active=True))
             added += 1
+        elif not existing.is_active:
+            existing.is_active = True
     db.session.commit()
     return jsonify({"message": f"{added} subjects added successfully!"})
 

@@ -1,4 +1,5 @@
 import os
+import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -7,6 +8,7 @@ load_dotenv()
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret")
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-jwt-secret")
+    JWT_ACCESS_TOKEN_EXPIRES = datetime.timedelta(days=7)
     # Render/Heroku give "postgres://" but SQLAlchemy needs "postgresql://"
     _db_url = os.getenv("DATABASE_URL", "postgresql://postgres:@localhost:5432/aura_attend")
     SQLALCHEMY_DATABASE_URI = _db_url.replace("postgres://", "postgresql://", 1)

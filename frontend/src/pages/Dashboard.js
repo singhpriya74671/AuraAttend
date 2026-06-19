@@ -15,6 +15,8 @@ export default function Dashboard() {
   const [showNotifs, setShowNotifs] = useState(false);
   const [dismissedNotifs, setDismissedNotifs] = useState(new Set());
   const [openSems, setOpenSems] = useState({});
+  const [loadingSubjects, setLoadingSubjects] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   // Cancel class state
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -28,10 +30,25 @@ export default function Dashboard() {
   }
   const navigate = useNavigate();
 
+  function loadDashboardData() {
+    setLoadingSubjects(true);
+    setLoadError(false);
+    Promise.all([
+      getSubjects(),
+      getAdminStats(),
+      getNotifications(),
+    ]).then(([subj, statsRes, notifsRes]) => {
+      setSubjects(subj.data);
+      setStats(statsRes.data);
+      setNotifications(notifsRes.data.alerts || []);
+      setLoadError(false);
+    }).catch(() => {
+      setLoadError(true);
+    }).finally(() => setLoadingSubjects(false));
+  }
+
   useEffect(() => {
-    getSubjects().then((r) => setSubjects(r.data)).catch(() => {});
-    getAdminStats().then((r) => setStats(r.data)).catch(() => {});
-    getNotifications().then((r) => setNotifications(r.data.alerts || [])).catch(() => {});
+    loadDashboardData();
   }, []);
 
   useEffect(() => {
@@ -144,7 +161,23 @@ export default function Dashboard() {
         )}
 
         <h2 className="text-lg font-semibold text-white mb-4">Your Subjects</h2>
-        {subjects.length === 0 ? (
+        {loadingSubjects ? (
+          <div className="flex items-center gap-3 py-6 mb-6" style={{ color: "rgba(255,255,255,0.4)" }}>
+            <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm">Loading subjects…</span>
+          </div>
+        ) : loadError ? (
+          <div className="p-5 mb-6 rounded-xl text-center" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)" }}>
+            <p className="text-sm mb-3" style={{ color: "rgba(255,255,255,0.6)" }}>
+              Could not connect to server. The backend may be waking up (Render free tier).
+            </p>
+            <button onClick={loadDashboardData}
+              className="px-4 py-2 rounded-lg text-sm font-semibold text-white"
+              style={{ background: "rgba(59,130,246,0.3)", border: "1px solid rgba(59,130,246,0.4)" }}>
+              Retry
+            </button>
+          </div>
+        ) : subjects.length === 0 ? (
           <p className="text-gray-400 mb-6">No subjects assigned yet.</p>
         ) : (
           <div className="space-y-6 mb-6">
