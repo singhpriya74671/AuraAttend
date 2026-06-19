@@ -453,7 +453,7 @@ export default function StudentDashboard() {
                             className="px-5 rounded-xl text-sm font-semibold text-white disabled:opacity-60 flex items-center gap-2"
                             style={{ background: "linear-gradient(135deg, #3b82f6, #1d4ed8)" }}>
                             {faceRegistered && <Camera size={14} />}
-                            {submitting[session.subject_id] ? "Verifyingâ€¦" : "Mark"}
+                            {submitting[session.subject_id] ? "Verifying..." : "Mark"}
                           </button>
                         </div>
                       </div>
@@ -466,7 +466,7 @@ export default function StudentDashboard() {
         )}
 
         {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-            MY ATTENDANCE TAB â€” hierarchical navigation
+            MY ATTENDANCE TAB ... hierarchical navigation
         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {tab === "history" && (
           <>
@@ -724,7 +724,7 @@ export default function StudentDashboard() {
               <button onClick={handleChangePassword} disabled={pwLoading}
                 className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
                 style={{ background: "linear-gradient(135deg, #3b82f6, #1d4ed8)" }}>
-                {pwLoading ? "Savingâ€¦" : "Update Password"}
+                {pwLoading ? "Saving..." : "Update Password"}
               </button>
             </div>
           </div>
@@ -845,7 +845,7 @@ function SemesterView({ year, summary, onBack, onSelect }) {
             onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.07)"}>
             <div className="text-lg font-bold text-white mb-0.5">Semester {sem}</div>
             <div className="text-xs mb-4" style={{ color: "rgba(255,255,255,0.35)" }}>
-              {ys === 1 ? "Jul â€“ Dec" : "Jan â€“ Jun"}
+              {ys === 1 ? "Jul - Dec" : "Jan - Jun"}
             </div>
             {total > 0 ? (
               <>
@@ -855,8 +855,8 @@ function SemesterView({ year, summary, onBack, onSelect }) {
                   <div className="h-1.5 rounded-full" style={{ width: `${Math.min(avg, 100)}%`, background: barColor(avg) }} />
                 </div>
                 <div className="flex justify-between text-xs mt-2" style={{ color: "rgba(255,255,255,0.3)" }}>
-                  <span style={{ color: "#4ade80" }}>â†‘ {attended}</span>
-                  <span style={{ color: "#f87171" }}>â†“ {missed}</span>
+                  <span style={{ color: "#4ade80" }}>^ {attended}</span>
+                  <span style={{ color: "#f87171" }}>v {missed}</span>
                 </div>
               </>
             ) : (
@@ -989,7 +989,7 @@ function DetailView({ subject, detail, loading, year, yearSem, onBack }) {
         <BackBtn label="Back to Subjects" onClick={onBack} />
         <div className="text-center py-16">
           <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Loading attendance dataâ€¦</p>
+          <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>Loading attendance data...</p>
         </div>
       </>
     );

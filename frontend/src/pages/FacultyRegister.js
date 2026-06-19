@@ -202,7 +202,7 @@ export default function FacultyRegister() {
             {loading ? (
               <span className="flex items-center justify-center gap-2">
                 <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Creating accountâ€¦
+                Creating account...
               </span>
             ) : "Create Faculty Account"}
           </button>

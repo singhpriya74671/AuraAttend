@@ -221,7 +221,7 @@ export default function Login() {
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Signing inâ€¦
+                  Signing in...
                 </span>
               ) : `Sign In as ${role === "student" ? "Student" : "Faculty / Admin"}`}
             </button>
@@ -281,7 +281,7 @@ export default function Login() {
                 <button onClick={sendOtp} disabled={forgotLoading}
                   className="w-full py-3 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
                   style={{ background: "linear-gradient(135deg, #3b82f6, #1d4ed8)" }}>
-                  {forgotLoading ? "Sendingâ€¦" : "Send OTP"}
+                  {forgotLoading ? "Sending..." : "Send OTP"}
                 </button>
               </>
             ) : (
@@ -298,11 +298,11 @@ export default function Login() {
                 <button onClick={resetPassword} disabled={forgotLoading}
                   className="w-full py-3 rounded-xl text-sm font-semibold text-white disabled:opacity-60 mb-2"
                   style={{ background: "linear-gradient(135deg, #10b981, #059669)" }}>
-                  {forgotLoading ? "Resettingâ€¦" : "Reset Password"}
+                  {forgotLoading ? "Resetting..." : "Reset Password"}
                 </button>
                 <button onClick={() => setForgotStep(1)}
                   className="w-full text-xs text-center py-2 transition" style={{ color: "rgba(255,255,255,0.35)" }}>
-                  â† Use a different email
+                  <- Use a different email
                 </button>
               </>
             )}

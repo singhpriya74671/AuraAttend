@@ -232,7 +232,7 @@ export default function Sidebar() {
               <button onClick={handleChangePassword} disabled={pwLoading}
                 className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
                 style={{ background: "linear-gradient(135deg, #3b82f6, #1d4ed8)" }}>
-                {pwLoading ? "Savingâ€¦" : "Update Password"}
+                {pwLoading ? "Saving..." : "Update Password"}
               </button>
             </div>
           </div>

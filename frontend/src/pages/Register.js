@@ -140,13 +140,13 @@ export default function Register() {
           </p>
           {!faceRegistered && (
             <div className="px-4 py-3 rounded-xl text-xs" style={{ background: "rgba(251,191,36,0.08)", border: "1px solid rgba(251,191,36,0.2)", color: "rgba(253,230,138,0.8)" }}>
-              Face ID skipped â€” you can register it from the Student Dashboard under "Face ID" tab.
+              Face ID skipped - you can register it from the Student Dashboard under “Face ID” tab.
             </div>
           )}
           <button onClick={() => navigate("/student")}
             className="w-full py-3 rounded-xl text-sm font-semibold text-white transition"
             style={{ background: "linear-gradient(135deg, #3b82f6, #1d4ed8)", boxShadow: "0 8px 25px rgba(59,130,246,0.35)" }}>
-            Go to Dashboard â†’
+            Go to Dashboard
           </button>
         </div>
       </div>
@@ -341,7 +341,7 @@ export default function Register() {
               {loading ? (
                 <div className="text-center py-12">
                   <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>Creating your accountâ€¦</p>
+                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>Creating your account...</p>
                 </div>
               ) : (
                 <>
@@ -354,7 +354,7 @@ export default function Register() {
                       style={{ color: "rgba(255,255,255,0.3)" }}
                       onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.6)"}
                       onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.3)"}>
-                      Skip Face ID for now â€” set it up later from dashboard
+                      Skip Face ID for now - set it up later from dashboard
                     </button>
                   </div>
                 </>
