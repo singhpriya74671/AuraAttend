@@ -89,6 +89,7 @@ def create_app(env=None):
         return {"status": "ok", "service": "AuraAttend"}
 
     with app.app_context():
+        from app.models import password_reset  # noqa: ensure table is registered
         db.create_all()
 
     return app

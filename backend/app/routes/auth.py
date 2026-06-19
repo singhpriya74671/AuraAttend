@@ -4,10 +4,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from app.models.student import Student
 from app.models.subject import Faculty
+from app.models.password_reset import PasswordResetOTP
 import random, datetime
-
-# In-memory OTP store: { email: (otp, expires_at) }
-_reset_otps = {}
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -194,8 +192,14 @@ def forgot_password():
         return jsonify({"error": "No account found with this email address."}), 404
 
     otp = str(random.randint(100000, 999999))
-    _reset_otps[email] = (otp, datetime.datetime.utcnow() + datetime.timedelta(minutes=10))
+    expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=10)
 
+    # Invalidate any existing OTPs for this email, then persist the new one
+    PasswordResetOTP.query.filter_by(email=email, used=False).delete()
+    db.session.add(PasswordResetOTP(email=email, otp=otp, expires_at=expires_at))
+    db.session.commit()
+
+    mail_sent = False
     try:
         from app import mail
         from flask_mail import Message
@@ -206,12 +210,16 @@ def forgot_password():
             body=f"Hello,\n\nYour OTP for password reset is: {otp}\n\nThis OTP is valid for 10 minutes.\n\nIf you did not request this, please ignore this email.\n\n— AuraAttend Team",
         )
         mail.send(msg)
+        mail_sent = True
         print(f"[MAIL] OTP sent to {email}")
     except Exception as e:
         print(f"[MAIL ERROR] {e}")
         print(f"[DEV] Password reset OTP for {email}: {otp}")
 
-    return jsonify({"message": "OTP sent to your email."})
+    if mail_sent:
+        return jsonify({"message": "OTP sent to your email."})
+    else:
+        return jsonify({"message": "OTP generated. Email delivery failed — please contact admin to get your OTP.", "dev_otp": otp})
 
 
 @auth_bp.post("/reset-password")
@@ -224,16 +232,17 @@ def reset_password():
     if len(new_password) < 6:
         return jsonify({"error": "Password must be at least 6 characters."}), 400
 
-    stored = _reset_otps.get(email)
-    if not stored:
+    record = PasswordResetOTP.query.filter_by(email=email, used=False)\
+        .order_by(PasswordResetOTP.created_at.desc()).first()
+    if not record:
         return jsonify({"error": "No OTP requested for this email."}), 400
 
-    stored_otp, expires_at = stored
-    if datetime.datetime.utcnow() > expires_at:
-        del _reset_otps[email]
+    if datetime.datetime.utcnow() > record.expires_at:
+        record.used = True
+        db.session.commit()
         return jsonify({"error": "OTP has expired. Please request a new one."}), 400
 
-    if otp != stored_otp:
+    if otp != record.otp:
         return jsonify({"error": "Incorrect OTP. Please try again."}), 400
 
     user = Student.query.filter_by(email=email).first() or Faculty.query.filter_by(email=email).first()
@@ -241,8 +250,8 @@ def reset_password():
         return jsonify({"error": "Account not found."}), 404
 
     user.password_hash = generate_password_hash(new_password)
+    record.used = True
     db.session.commit()
-    del _reset_otps[email]
     return jsonify({"message": "Password reset successfully."})
 
 

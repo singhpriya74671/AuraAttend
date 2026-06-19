@@ -58,10 +58,16 @@ export default function Login() {
     if (!forgotEmail.trim()) { toast.error("Enter your email."); return; }
     setForgotLoading(true);
     try {
-      await import("../services/api").then(({ default: api }) =>
+      const { data } = await import("../services/api").then(({ default: api }) =>
         api.post("/api/auth/forgot-password", { email: forgotEmail })
       );
-      toast.success("OTP sent to your email!");
+      if (data.dev_otp) {
+        // Email not configured — show OTP directly so user can still reset
+        setForgotOtp(data.dev_otp);
+        toast.success(`OTP: ${data.dev_otp} (email unavailable — auto-filled)`, { duration: 8000 });
+      } else {
+        toast.success("OTP sent to your email!");
+      }
       setForgotStep(2);
     } catch (err) {
       toast.error(err.response?.data?.error || "Email not found.");
