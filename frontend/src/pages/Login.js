@@ -302,7 +302,7 @@ export default function Login() {
                 </button>
                 <button onClick={() => setForgotStep(1)}
                   className="w-full text-xs text-center py-2 transition" style={{ color: "rgba(255,255,255,0.35)" }}>
-                  <- Use a different email
+                  ← Use a different email
                 </button>
               </>
             )}
