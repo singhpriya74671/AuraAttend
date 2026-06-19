@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { getSubjects, getAdminStats, getNotifications, cancelClass, getFacultyCancellations, deleteCancellation } from "../services/api";
 import Sidebar from "../components/Sidebar";
@@ -256,143 +257,128 @@ export default function Dashboard() {
         <ChatBot />
       </main>
 
-      {/* ── Side Drawer ────────────────────────────────────────────── */}
-      {/* Backdrop */}
-      {selectedSubject && (
-        <div
-          onClick={() => setSelectedSubject(null)}
-          style={{
-            position: "fixed", inset: 0, zIndex: 40,
-            background: "rgba(0,0,0,0.45)",
-            backdropFilter: "blur(3px)",
-            animation: "fadeIn 0.2s ease",
-          }}
-        />
-      )}
+      {createPortal(
+        <>
+          <style>{`@keyframes aura-fadein{from{opacity:0}to{opacity:1}}`}</style>
 
-      {/* Drawer panel */}
-      <div style={{
-        position: "fixed", top: 0, right: 0, bottom: 0, zIndex: 41,
-        width: "clamp(320px, 42vw, 480px)",
-        background: "linear-gradient(160deg, #0f1f3d 0%, #112240 100%)",
-        borderLeft: "1px solid rgba(255,255,255,0.1)",
-        boxShadow: "-8px 0 40px rgba(0,0,0,0.5)",
-        transform: selectedSubject ? "translateX(0)" : "translateX(100%)",
-        transition: "transform 0.28s cubic-bezier(0.4,0,0.2,1)",
-        display: "flex", flexDirection: "column",
-        overflowY: "auto",
-      }}>
-        {selectedSubject && (
-          <>
-            {/* Drawer header */}
-            <div style={{
-              padding: "20px 24px 16px",
-              borderBottom: "1px solid rgba(255,255,255,0.08)",
-              background: "rgba(255,255,255,0.03)",
-              position: "sticky", top: 0, zIndex: 1,
-              backdropFilter: "blur(12px)",
-            }}>
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-xs font-medium mb-0.5" style={{ color: "rgba(147,197,253,0.7)" }}>
-                    {selectedSubject.code}
-                  </p>
-                  <h2 className="text-base font-bold text-white leading-tight">
-                    {selectedSubject.name}
-                  </h2>
-                </div>
-                <button
-                  onClick={() => setSelectedSubject(null)}
-                  className="shrink-0 p-2 rounded-xl transition"
-                  style={{ color: "rgba(255,255,255,0.4)", background: "rgba(255,255,255,0.06)" }}
-                  onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.12)"; e.currentTarget.style.color = "#fff"; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "rgba(255,255,255,0.4)"; }}
-                >
-                  <X size={16} />
-                </button>
-              </div>
+          {/* Backdrop */}
+          {selectedSubject && (
+            <div onClick={() => setSelectedSubject(null)} style={{
+              position: "fixed", inset: 0, zIndex: 9998,
+              background: "rgba(0,0,0,0.5)",
+              backdropFilter: "blur(4px)",
+              animation: "aura-fadein 0.2s ease",
+            }} />
+          )}
 
-              {/* Quick actions row */}
-              <div className="flex gap-2 mt-4">
-                <button
-                  onClick={() => navigate(`/attendance/${selectedSubject.id}`)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition"
-                  style={{ background: "rgba(59,130,246,0.2)", border: "1px solid rgba(59,130,246,0.3)", color: "#93c5fd" }}
-                  onMouseEnter={e => e.currentTarget.style.background = "rgba(59,130,246,0.3)"}
-                  onMouseLeave={e => e.currentTarget.style.background = "rgba(59,130,246,0.2)"}
-                >
-                  <ExternalLink size={12} /> View Records
-                </button>
-                <button
-                  onClick={() => setShowCancelModal(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition"
-                  style={{ background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.25)", color: "#fca5a5" }}
-                  onMouseEnter={e => e.currentTarget.style.background = "rgba(239,68,68,0.25)"}
-                  onMouseLeave={e => e.currentTarget.style.background = "rgba(239,68,68,0.15)"}
-                >
-                  <XCircle size={12} /> Cancel Class
-                </button>
-              </div>
-            </div>
-
-            {/* Drawer body */}
-            <div style={{ padding: "20px 24px", flex: 1 }}>
-              <AttendanceWindow subjectId={selectedSubject.id} />
-
-              {/* Cancellations list */}
-              {cancellations.length > 0 && (
-                <div className="mt-4 rounded-xl overflow-hidden"
-                  style={{ border: "1px solid rgba(239,68,68,0.2)", background: "rgba(239,68,68,0.05)" }}>
-                  <div className="px-4 py-2.5 flex items-center gap-2"
-                    style={{ borderBottom: "1px solid rgba(239,68,68,0.15)" }}>
-                    <Calendar size={13} className="text-red-400" />
-                    <span className="text-xs font-semibold text-red-300">Cancellation Notices</span>
-                    <span className="text-xs ml-auto" style={{ color: "rgba(255,255,255,0.3)" }}>
-                      {cancellations.length}
-                    </span>
+          {/* Drawer */}
+          <div style={{
+            position: "fixed", top: 0, right: 0, bottom: 0, zIndex: 9999,
+            width: "clamp(320px, 42vw, 480px)",
+            background: "linear-gradient(160deg, #0f1f3d 0%, #112240 100%)",
+            borderLeft: "1px solid rgba(255,255,255,0.12)",
+            boxShadow: "-12px 0 50px rgba(0,0,0,0.6)",
+            transform: selectedSubject ? "translateX(0)" : "translateX(100%)",
+            transition: "transform 0.28s cubic-bezier(0.4,0,0.2,1)",
+            display: "flex", flexDirection: "column",
+            overflowY: "auto",
+          }}>
+            {selectedSubject && (
+              <>
+                {/* Header */}
+                <div style={{
+                  padding: "20px 24px 16px",
+                  borderBottom: "1px solid rgba(255,255,255,0.08)",
+                  background: "rgba(255,255,255,0.03)",
+                  position: "sticky", top: 0, zIndex: 1,
+                  backdropFilter: "blur(12px)",
+                }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ fontSize: 11, color: "rgba(147,197,253,0.7)", marginBottom: 2, fontWeight: 500 }}>
+                        {selectedSubject.code}
+                      </p>
+                      <h2 style={{ fontSize: 15, fontWeight: 700, color: "#fff", lineHeight: 1.3, margin: 0 }}>
+                        {selectedSubject.name}
+                      </h2>
+                    </div>
+                    <button onClick={() => setSelectedSubject(null)} style={{
+                      flexShrink: 0, padding: "6px 8px", borderRadius: 10, border: "none", cursor: "pointer",
+                      background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.5)",
+                    }}
+                      onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; e.currentTarget.style.color = "#fff"; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "rgba(255,255,255,0.5)"; }}
+                    >
+                      <X size={15} />
+                    </button>
                   </div>
-                  <div className="divide-y" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-                    {cancellations.map((c) => {
-                      const isPast = new Date(c.cancel_date) < new Date(new Date().toDateString());
-                      return (
-                        <div key={c.id} className="flex items-center gap-3 px-4 py-2.5">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-medium text-white">{c.cancel_date_display}</span>
-                              <span className="text-xs px-1.5 py-0.5 rounded-full"
-                                style={isPast
-                                  ? { background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.3)" }
-                                  : { background: "rgba(239,68,68,0.2)", color: "#fca5a5" }}>
-                                {isPast ? "Past" : "Upcoming"}
-                              </span>
+
+                  <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+                    <button onClick={() => navigate(`/attendance/${selectedSubject.id}`)} style={{
+                      display: "flex", alignItems: "center", gap: 5, padding: "6px 12px",
+                      borderRadius: 8, border: "1px solid rgba(59,130,246,0.35)", cursor: "pointer",
+                      background: "rgba(59,130,246,0.15)", color: "#93c5fd", fontSize: 12, fontWeight: 500,
+                    }}
+                      onMouseEnter={e => e.currentTarget.style.background = "rgba(59,130,246,0.28)"}
+                      onMouseLeave={e => e.currentTarget.style.background = "rgba(59,130,246,0.15)"}
+                    >
+                      <ExternalLink size={11} /> View Records
+                    </button>
+                    <button onClick={() => setShowCancelModal(true)} style={{
+                      display: "flex", alignItems: "center", gap: 5, padding: "6px 12px",
+                      borderRadius: 8, border: "1px solid rgba(239,68,68,0.3)", cursor: "pointer",
+                      background: "rgba(239,68,68,0.12)", color: "#fca5a5", fontSize: 12, fontWeight: 500,
+                    }}
+                      onMouseEnter={e => e.currentTarget.style.background = "rgba(239,68,68,0.25)"}
+                      onMouseLeave={e => e.currentTarget.style.background = "rgba(239,68,68,0.12)"}
+                    >
+                      <XCircle size={11} /> Cancel Class
+                    </button>
+                  </div>
+                </div>
+
+                {/* Body */}
+                <div style={{ padding: "20px 24px", flex: 1 }}>
+                  <AttendanceWindow subjectId={selectedSubject.id} />
+
+                  {cancellations.length > 0 && (
+                    <div style={{ marginTop: 16, borderRadius: 12, overflow: "hidden", border: "1px solid rgba(239,68,68,0.2)", background: "rgba(239,68,68,0.05)" }}>
+                      <div style={{ padding: "10px 16px", borderBottom: "1px solid rgba(239,68,68,0.15)", display: "flex", alignItems: "center", gap: 8 }}>
+                        <Calendar size={13} style={{ color: "#f87171" }} />
+                        <span style={{ fontSize: 12, fontWeight: 600, color: "#fca5a5" }}>Cancellation Notices</span>
+                        <span style={{ fontSize: 11, marginLeft: "auto", color: "rgba(255,255,255,0.3)" }}>{cancellations.length}</span>
+                      </div>
+                      {cancellations.map((c) => {
+                        const isPast = new Date(c.cancel_date) < new Date(new Date().toDateString());
+                        return (
+                          <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 16px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                <span style={{ fontSize: 12, fontWeight: 500, color: "#fff" }}>{c.cancel_date_display}</span>
+                                <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 20, background: isPast ? "rgba(255,255,255,0.06)" : "rgba(239,68,68,0.2)", color: isPast ? "rgba(255,255,255,0.3)" : "#fca5a5" }}>
+                                  {isPast ? "Past" : "Upcoming"}
+                                </span>
+                              </div>
+                              {c.reason && <p style={{ fontSize: 11, marginTop: 2, color: "rgba(255,255,255,0.4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.reason}</p>}
                             </div>
-                            {c.reason && (
-                              <p className="text-xs mt-0.5 truncate" style={{ color: "rgba(255,255,255,0.4)" }}>
-                                {c.reason}
-                              </p>
-                            )}
+                            <button onClick={() => handleDeleteCancellation(c.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.2)", padding: 6, borderRadius: 6 }}
+                              onMouseEnter={e => e.currentTarget.style.color = "#f87171"}
+                              onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.2)"}
+                            >
+                              <Trash2 size={13} />
+                            </button>
                           </div>
-                          <button
-                            onClick={() => handleDeleteCancellation(c.id)}
-                            className="p-1.5 rounded-lg transition"
-                            style={{ color: "rgba(255,255,255,0.2)" }}
-                            onMouseEnter={e => e.currentTarget.style.color = "#f87171"}
-                            onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.2)"}
-                          >
-                            <Trash2 size={13} />
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </>
-        )}
-      </div>
-
-      <style>{`@keyframes fadeIn{from{opacity:0}to{opacity:1}}`}</style>
+              </>
+            )}
+          </div>
+        </>,
+        document.body
+      )}
 
       {/* Cancel Class Modal */}
       {showCancelModal && (
