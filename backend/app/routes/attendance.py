@@ -232,6 +232,9 @@ def verify_otp():
     gps_lat = data.get("lat")
     gps_lng = data.get("lng")
 
+    if gps_lat is None or gps_lng is None:
+        return jsonify({"error": "Location access is required to mark attendance. Please enable GPS and try again."}), 400
+
     session = AttendanceSession.query.filter_by(
         subject_id=subject_id, is_active=True, otp=otp
     ).first()
@@ -282,6 +285,8 @@ def checkin():
 
     if not image_b64:
         return jsonify({"error": "Camera frame required"}), 400
+    if gps_lat is None or gps_lng is None:
+        return jsonify({"error": "Location access is required to mark attendance. Please enable GPS and try again."}), 400
 
     # 1. Determine active class
     subject = _active_subject_for_student(student_id)

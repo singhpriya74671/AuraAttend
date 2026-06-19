@@ -142,15 +142,30 @@ export default function StudentDashboard() {
 
   // â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   function getCurrentGps() {
-    return new Promise((resolve) => {
-      if (!navigator.geolocation) { resolve({ lat: null, lng: null }); return; }
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error("GPS not supported on this device."));
+        return;
+      }
+      // Stage 1: high accuracy (GPS chip)
       navigator.geolocation.getCurrentPosition(
         (p) => {
           const coords = { lat: p.coords.latitude, lng: p.coords.longitude };
           setGpsCoords(coords);
           resolve(coords);
         },
-        () => resolve(gpsCoords),
+        () => {
+          // Stage 2: low accuracy fallback (WiFi / cell tower — works indoors)
+          navigator.geolocation.getCurrentPosition(
+            (p) => {
+              const coords = { lat: p.coords.latitude, lng: p.coords.longitude };
+              setGpsCoords(coords);
+              resolve(coords);
+            },
+            () => reject(new Error("Location unavailable. Please enable GPS or allow location access.")),
+            { enableHighAccuracy: false, timeout: 8000 }
+          );
+        },
         { enableHighAccuracy: true, timeout: 8000 }
       );
     });
@@ -159,14 +174,21 @@ export default function StudentDashboard() {
   async function handleOtpSubmit(session) {
     const otp = (otpInputs[session.subject_id] || "").trim();
     if (!otp) { toast.error("Please enter the OTP."); return; }
+    setSubmitting(s => ({ ...s, [session.subject_id]: true }));
+    let coords;
+    try {
+      coords = await getCurrentGps();
+    } catch (gpsErr) {
+      toast.error(gpsErr.message || "Location access required to mark attendance.");
+      setSubmitting(s => ({ ...s, [session.subject_id]: false }));
+      return;
+    }
     if (faceRegistered) {
       setPendingOtp(p => ({ ...p, [session.subject_id]: otp }));
       setShowCamera(session.subject_id);
+      setSubmitting(s => ({ ...s, [session.subject_id]: false }));
     } else {
-      setSubmitting(s => ({ ...s, [session.subject_id]: true }));
       try {
-        const coords = await getCurrentGps();
-        if (!coords.lat) toast("Getting location failed — marking without GPS.", { icon: "⚠️" });
         const { data } = await verifyOtp(session.subject_id, otp, coords.lat, coords.lng);
         toast.success(data.message);
         setMarked(m => ({ ...m, [session.subject_id]: true }));
@@ -183,6 +205,10 @@ export default function StudentDashboard() {
     const sid = showCamera;
     const otp = pendingOtp[sid] || otpInputs[sid] || "";
     setShowCamera(null);
+    if (!gpsCoords.lat) {
+      toast.error("Location access required to mark attendance.");
+      return;
+    }
     setSubmitting(s => ({ ...s, [sid]: true }));
     try {
       const { data } = await faceCheckin(sid, otp, imageB64, gpsCoords.lat, gpsCoords.lng);
