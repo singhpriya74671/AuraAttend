@@ -5,10 +5,14 @@ export default function AttendanceTable({ records, onOverride }) {
     return { background: "rgba(239,68,68,0.15)", color: "#f87171", border: "1px solid rgba(239,68,68,0.25)" };
   }
 
-  function LocationCell({ geo_verified, gps_lat, last_marked_at }) {
+  function LocationCell({ geo_verified, last_marked_at }) {
     const dt = last_marked_at ? new Date(last_marked_at) : null;
     const dateStr = dt ? dt.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : null;
     const timeStr = dt ? dt.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true }) : null;
+
+    if (!last_marked_at) {
+      return <span style={{ color: "rgba(255,255,255,0.2)", fontSize: "11px" }}>—</span>;
+    }
 
     return (
       <div className="space-y-1">
@@ -17,13 +21,11 @@ export default function AttendanceTable({ records, onOverride }) {
             style={{ background: "rgba(34,197,94,0.15)", color: "#4ade80", border: "1px solid rgba(34,197,94,0.25)" }}>
             ✓ Inside Campus
           </span>
-        ) : gps_lat != null ? (
+        ) : (
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
             style={{ background: "rgba(239,68,68,0.15)", color: "#f87171", border: "1px solid rgba(239,68,68,0.25)" }}>
             ✗ Outside Campus
           </span>
-        ) : (
-          <span style={{ color: "rgba(255,255,255,0.2)", fontSize: "11px" }}>—</span>
         )}
         {dateStr && (
           <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "11px" }}>
@@ -60,7 +62,7 @@ export default function AttendanceTable({ records, onOverride }) {
                 </span>
               </td>
               <td className="px-4 py-3">
-                <LocationCell geo_verified={r.geo_verified} gps_lat={r.gps_lat} last_marked_at={r.last_marked_at} />
+                <LocationCell geo_verified={r.geo_verified} last_marked_at={r.last_marked_at} />
               </td>
               <td className="px-4 py-3">
                 <button onClick={() => onOverride(r.student_id, "present")}
