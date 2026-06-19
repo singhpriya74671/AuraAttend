@@ -249,10 +249,14 @@ def verify_otp():
         current_app.config["COLLEGE_RADIUS_METERS"],
     )
 
+    from datetime import timedelta
+    late_minutes = int((datetime.utcnow() - session.started_at).total_seconds() / 60)
+    status = "partial" if late_minutes > 15 else "present"
+
     record = AttendanceRecord(
         student_id=identity["id"],
         subject_id=subject_id,
-        status="present",
+        status=status,
         geo_verified=geo_ok,
         liveness_passed=True,
         gps_lat=gps_lat,
@@ -261,10 +265,13 @@ def verify_otp():
     db.session.add(record)
     db.session.commit()
     subject = Subject.query.get(subject_id)
+    msg = (f"Attendance marked for {subject.name}!" if status == "present"
+           else f"Marked as Partial for {subject.name} (late by {late_minutes} min).")
     return jsonify({
-        "message": f"Attendance marked for {subject.name}!",
-        "status": "present",
+        "message": msg,
+        "status": status,
         "geo_verified": geo_ok,
+        "late_minutes": late_minutes,
     })
 
 
@@ -502,3 +509,53 @@ def my_summary():
 
     result.sort(key=lambda x: x["percentage"])
     return jsonify(result)
+
+
+@attendance_bp.get("/my-streak")
+@jwt_required()
+def my_streak():
+    student_id = int(get_jwt_identity())
+
+    records = (AttendanceRecord.query
+               .filter(AttendanceRecord.student_id == student_id,
+                       AttendanceRecord.status.in_(["present", "partial"]))
+               .order_by(AttendanceRecord.timestamp.desc())
+               .all())
+
+    # Collect unique attended dates (date only, ignore time)
+    attended_dates = sorted(
+        {r.timestamp.date() for r in records}, reverse=True
+    )
+
+    from datetime import date, timedelta
+    today = date.today()
+
+    current_streak = 0
+    longest_streak = 0
+    streak = 0
+    prev = None
+
+    for d in attended_dates:
+        if prev is None:
+            streak = 1
+        elif (prev - d).days == 1:
+            streak += 1
+        else:
+            streak = 1
+        prev = d
+        if streak > longest_streak:
+            longest_streak = streak
+
+    # Current streak: count backwards from today
+    current_streak = 0
+    check = today
+    attended_set = set(attended_dates)
+    while check in attended_set:
+        current_streak += 1
+        check = check - timedelta(days=1)
+
+    return jsonify({
+        "current_streak": current_streak,
+        "longest_streak": longest_streak,
+        "total_attended_days": len(attended_dates),
+    })

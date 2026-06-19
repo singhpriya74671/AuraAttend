@@ -1,7 +1,7 @@
 ﻿import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  getActiveSessions, verifyOtp, getMyAttendanceSummary,
+  getActiveSessions, verifyOtp, getMyAttendanceSummary, getMyStreak,
   registerFace, faceCheckin, getFaceStatus, presenceCheck,
   getMySubjectDetail, getMyNotices,
 } from "../services/api";
@@ -40,6 +40,7 @@ export default function StudentDashboard() {
   const [tab, setTab] = useState("sessions");
   const [sessions, setSessions] = useState([]);
   const [summary, setSummary] = useState([]);
+  const [streak, setStreak] = useState(null);
   const [faceRegistered, setFaceRegistered] = useState(false);
   const [otpInputs, setOtpInputs] = useState({});
   const [submitting, setSubmitting] = useState({});
@@ -103,12 +104,16 @@ export default function StudentDashboard() {
     try { const { data } = await getMyAttendanceSummary(); setSummary(data); } catch {}
   }, []);
 
+  const fetchStreak = useCallback(async () => {
+    try { const { data } = await getMyStreak(); setStreak(data); } catch {}
+  }, []);
+
   const fetchFaceStatus = useCallback(async () => {
     try { const { data } = await getFaceStatus(); setFaceRegistered(data.registered); } catch {}
   }, []);
 
   useEffect(() => {
-    fetchSessions(); fetchSummary(); fetchFaceStatus();
+    fetchSessions(); fetchSummary(); fetchStreak(); fetchFaceStatus();
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (p) => setGpsCoords({ lat: p.coords.latitude, lng: p.coords.longitude }),
@@ -190,9 +195,13 @@ export default function StudentDashboard() {
     } else {
       try {
         const { data } = await verifyOtp(session.subject_id, otp, coords.lat, coords.lng);
-        toast.success(data.message);
+        if (data.status === "partial") {
+          toast(data.message, { icon: "⏰", style: { background: "#92400e", color: "#fde68a" } });
+        } else {
+          toast.success(data.message);
+        }
         setMarked(m => ({ ...m, [session.subject_id]: true }));
-        fetchSummary();
+        fetchSummary(); fetchStreak();
       } catch (err) {
         toast.error(err.response?.data?.error || "Invalid OTP or session has expired.");
       } finally {
@@ -214,6 +223,7 @@ export default function StudentDashboard() {
       const { data } = await faceCheckin(sid, otp, imageB64, gpsCoords.lat, gpsCoords.lng);
       toast.success(`${data.message} (Face confidence: ${Math.round((data.confidence || 0) * 100)}%)`);
       setMarked(m => ({ ...m, [sid]: true }));
+      fetchStreak();
       fetchSummary();
     } catch (err) {
       toast.error(err.response?.data?.error || "Face verification failed.");
@@ -413,6 +423,29 @@ export default function StudentDashboard() {
         â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         {tab === "sessions" && (
           <>
+            {/* Streak Banner */}
+            {streak && (streak.current_streak > 0 || streak.total_attended_days > 0) && (
+              <div className="flex items-center justify-between p-4 rounded-2xl mb-4"
+                style={{ background: "linear-gradient(135deg, rgba(251,191,36,0.12), rgba(245,158,11,0.06))", border: "1px solid rgba(251,191,36,0.2)" }}>
+                <div className="flex items-center gap-3">
+                  <div className="text-2xl">{streak.current_streak >= 7 ? "🔥" : streak.current_streak >= 3 ? "⚡" : "✨"}</div>
+                  <div>
+                    <div className="text-sm font-semibold text-white">
+                      {streak.current_streak > 0 ? `${streak.current_streak}-Day Streak!` : "Start Your Streak"}
+                    </div>
+                    <div className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                      Best: {streak.longest_streak} days · {streak.total_attended_days} total days attended
+                    </div>
+                  </div>
+                </div>
+                {streak.current_streak >= 7 && (
+                  <span className="text-xs font-bold px-2 py-1 rounded-full"
+                    style={{ background: "rgba(251,191,36,0.2)", color: "#fbbf24" }}>
+                    On Fire!
+                  </span>
+                )}
+              </div>
+            )}
             <h2 className="text-base font-semibold text-white mb-4">Active Attendance Sessions</h2>
             {!faceRegistered && (
               <div className="flex items-center gap-3 p-4 rounded-xl mb-4"
@@ -974,9 +1007,13 @@ function SubjectsView({ year, yearSem, subjects, stats, onBack, onSubject }) {
                 <div className="flex items-center gap-2 shrink-0">
                   <div className="text-right">
                     <div className="text-xl font-bold" style={{ color: pctColor(s.percentage) }}>{s.percentage}%</div>
-                    {s.percentage < 75 && s.total_classes > 0 && (
-                      <div className="text-xs" style={{ color: "#f87171" }}>Below 75%</div>
-                    )}
+                    {s.total_classes > 0 && (() => {
+                      const need = Math.ceil(3 * s.total_classes - 4 * s.present);
+                      const canMiss = Math.floor((4 * s.present - 3 * s.total_classes) / 3);
+                      if (need > 0) return <div className="text-xs mt-0.5" style={{ color: "#f87171" }}>Need {need} more</div>;
+                      if (canMiss > 0) return <div className="text-xs mt-0.5" style={{ color: "#4ade80" }}>Can miss {canMiss}</div>;
+                      return null;
+                    })()}
                   </div>
                   <ChevronRight size={16} style={{ color: "rgba(255,255,255,0.25)" }} />
                 </div>

@@ -33,6 +33,9 @@ export const verifyOtp = (subjectId, otp, lat, lng) =>
 export const getMyAttendanceSummary = () =>
   api.get("/api/attendance/my-summary");
 
+export const getMyStreak = () =>
+  api.get("/api/attendance/my-streak");
+
 export const registerFace = (imageB64) =>
   api.post("/api/attendance/register-face", { image: imageB64 });
 
